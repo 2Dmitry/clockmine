@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from constants import coefficient
+
 if TYPE_CHECKING:
     from clockify.session import ClockifySession
 
@@ -10,4 +12,4 @@ def get_clockify_tags_map(clockify: "ClockifySession", clockify_workspace_id: st
 
 
 def secs_to_hours(secs: float) -> float:
-    return round(secs / 60 / 60, 2)
+    return round(secs / 60 / 60 * coefficient, 2)

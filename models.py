@@ -8,6 +8,8 @@ if TYPE_CHECKING:
 
 
 class TimeEntry:
+    absolute_time = 0.0
+
     def __init__(
         self,
         issue_id=None,
@@ -21,6 +23,7 @@ class TimeEntry:
         self.issue_id = issue_id
         self.description = description
         self.hours = hours
+        TimeEntry.absolute_time = round(TimeEntry.absolute_time + hours, 2)
         self.rm_activity_name = rm_activity_name
         self.activity_id = redmine_activities_map.get(self.rm_activity_name)
         self.spent_on = spent_on
@@ -49,5 +52,16 @@ class TimeEntry:
         else:
             raise ValueError(f"Some attributes are required. Check time entry {self.description}")
 
+    @property
+    def relative_time(self) -> float:
+        return round(self.hours / self.absolute_time * 100, 1)
+
     def get_report_data(self) -> tuple:
-        return (self.issue_id, self.description, self.hours, self.rm_activity_name, self.spent_on, self.comments)
+        return (
+            self.issue_id,
+            self.description,
+            self.hours,  # TODO f"{self.hours} из {self.absolute_time} ({self.relative_time}%)",
+            self.rm_activity_name,
+            self.spent_on,
+            self.comments,
+        )

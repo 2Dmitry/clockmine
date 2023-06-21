@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING
 
 import isodate
-from clockify.session import ClockifySession  # TODO попробуй https://clockify-cli.netlify.app/
-
+from clockify.session import (
+    ClockifySession,  # TODO попробуй https://clockify-cli.netlify.app/
+)
 from redminelib import Redmine
 from tabulate import tabulate
 
@@ -23,7 +24,6 @@ def clockify_to_redmine(clockify: "ClockifySession", redmine: "Redmine") -> None
     clockify_tags_map = get_clockify_tags_map(clockify, clockify_workspace_id) if clockify_workspace_id else dict()
     redmine_user_id = redmine.user.get("current").id
 
-    hours_sum = float(0)
     time_entries = dict()
 
     # Парсим затреканное в Клокифае время
@@ -37,8 +37,6 @@ def clockify_to_redmine(clockify: "ClockifySession", redmine: "Redmine") -> None
             rm_activity_name=clockify_tags_map.get(clockify_tag_ids[0], "Разработка"),
         )
 
-        hours_sum += time_entry.hours
-
         key = (time_entry.issue_id, time_entry.rm_activity_name)
         if _ := time_entries.get(key):
             _.hours += time_entry.hours
@@ -51,7 +49,7 @@ def clockify_to_redmine(clockify: "ClockifySession", redmine: "Redmine") -> None
     print(
         tabulate(
             table,
-            headers=("№", "Тема", f"Время (sum: {hours_sum})", "Деятельность", "Дата", "Комментарий"),
+            headers=("№", "Тема", "Время", "Деятельность", "Дата", "Комментарий"),
             tablefmt="rounded_outline",
             numalign="decimal",
             floatfmt=".2f",

@@ -8,7 +8,7 @@ from redminelib import Redmine
 from tabulate import tabulate
 
 from config import CLOCKIFY_API_KEY, DEBUG_MODE, REDMINE_API_KEY
-from constants import redmine_url
+from constants import redmine_url, redmine_url_time_entry
 from models import TimeEntry
 from utils import get_clockify_tags_map, secs_to_hours
 
@@ -62,6 +62,7 @@ def clockify_to_redmine(clockify: "ClockifySession", redmine: "Redmine") -> None
         for time_entry in time_entries.values():
             time_entry.push_to_redmine(redmine)
             print("Внимание! Удалите вручную записи в Клокифае!")  # TODO добавить удаление времени из Клокифай
+        print(f"Посмотреть затреканное время можно тут: {redmine_url_time_entry}")
 
 
 if __name__ == "__main__":

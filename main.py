@@ -61,7 +61,7 @@ def clockify_to_redmine(clockify: "ClockifySession", redmine: "Redmine") -> None
     if not DEBUG_MODE:
         for time_entry in time_entries.values():
             time_entry.push_to_redmine(redmine)
-            print("Внимание! Удалите вручную записи в Клокифае!")  # TODO добавить удаление времени из Клокифай
+        print("Внимание! Удалите вручную записи в Клокифае!")  # TODO добавить удаление времени из Клокифай
         print(f"Посмотреть затреканное время можно тут: {redmine_url_time_entry}")
 
 

@@ -1,5 +1,5 @@
-from datetime import datetime
-from typing import TYPE_CHECKING
+from datetime import date, datetime
+from typing import TYPE_CHECKING, Optional
 
 from constants import redmine_activities_map
 
@@ -8,22 +8,23 @@ if TYPE_CHECKING:
 
 
 class TimeEntry:
-    absolute_time = 0.0
+    _absolute_time = 0.0
+    _all = dict()
 
     def __init__(
         self,
-        issue_id=None,
-        description="",
-        hours=0.0,
-        rm_activity_name="Разработка",
-        spent_on=datetime.today().date(),
-        user_id=None,
-        comments="",
+        issue_id: Optional[int] = None,
+        description: str = "",
+        hours: float = 0.0,
+        rm_activity_name: str = "Разработка",
+        spent_on: date = datetime.today().date(),
+        user_id: Optional[int] = None,
+        comments: str = "",
     ):
         self.issue_id = issue_id
         self.description = description
         self.hours = hours
-        TimeEntry.absolute_time = round(TimeEntry.absolute_time + hours, 2)
+        TimeEntry._absolute_time = round(TimeEntry.get_absolute_time() + hours, 2)
         self.rm_activity_name = rm_activity_name
         self.activity_id = redmine_activities_map.get(self.rm_activity_name)
         self.spent_on = spent_on
@@ -34,6 +35,20 @@ class TimeEntry:
             if "#" in chunk:
                 self.issue_id = chunk[1:]
                 break
+
+        key = (self.issue_id, self.rm_activity_name)
+        if _ := TimeEntry._all.get(key):
+            _.hours += self.hours
+        else:
+            TimeEntry._all[key] = self
+
+    @classmethod
+    def get_absolute_time(cls) -> float:
+        return cls._absolute_time
+
+    @classmethod
+    def get_time_entries(cls) -> dict:
+        return cls._all
 
     @property
     def can_push_to_redmine(self) -> bool:
@@ -51,11 +66,13 @@ class TimeEntry:
             )
         else:
             raise ValueError(f"Some attributes are required. Check time entry {self.description}")
+        return
 
     @property
     def relative_time(self) -> float:
-        return round(self.hours / self.absolute_time * 100, 1)
+        return round(self.hours / self.get_absolute_time() * 100, 1)
 
+    @property
     def get_report_data(self) -> tuple:
         return (
             self.issue_id,

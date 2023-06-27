@@ -48,6 +48,8 @@ def collect_data(clockify: "ClockifySession", redmine: "Redmine", coeff: float =
         for te in TimeEntry.get_time_entries().values():
             te.hours *= coeff
 
+    return
+
 
 def report() -> None:
     table = [time_entry.get_report_data for time_entry in TimeEntry.get_time_entries().values()]
@@ -62,6 +64,7 @@ def report() -> None:
             showindex="always",
         ),
     )
+    print(TimeEntry.get_absolute_time())
     return
 
 

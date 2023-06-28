@@ -21,6 +21,7 @@ def get_clockify_tags_map(clockify: "ClockifySession", clockify_workspace_id: st
 
 
 def secs_to_hours(secs: float, coeff: float = 1.0) -> float:
+    # TODO не умножать здесь на coeff делать это там же где работаем с переменно target, тип if/elif
     return round(secs / 60 / 60 * coeff, 2)
 
 
@@ -40,7 +41,9 @@ def collect_data(clockify: "ClockifySession", redmine: "Redmine", coeff: float =
             hours=secs_to_hours(
                 isodate.parse_duration(clockify_time_entry.time_interval.duration).total_seconds(), coeff=coeff
             ),
-            rm_activity_name=clockify_tags_map.get(clockify_tag_ids[0], "Разработка"),
+            rm_activity_name=clockify_tags_map.get(
+                clockify_tag_ids[0], "Разработка"
+            ),  # TODO обработать ситуацию, когда юзер указал больше 1 деятельности в Клокифу
         )
 
     if target != 0:

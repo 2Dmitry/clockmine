@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, timedelta
 from typing import TYPE_CHECKING, Optional
 
 from constants import redmine_activities_map
@@ -8,8 +8,8 @@ if TYPE_CHECKING:
 
 
 class TimeEntry:
-    _absolute_time = 0.0
-    _all = dict()
+    _absolute_time = 0.0  # TODO FIX плохой нейминг
+    _all = dict()  # TODO FIX плохой нейминг
 
     def __init__(
         self,
@@ -17,7 +17,7 @@ class TimeEntry:
         description: str = "",
         hours: float = 0.0,
         rm_activity_name: str = "Разработка",
-        spent_on: date = datetime.today().date(),
+        spent_on: date = date.today(),  # - timedelta(days=1), # TODO парсить дату из Клокифу
         user_id: Optional[int] = None,
         comments: str = "",
     ):
@@ -47,7 +47,7 @@ class TimeEntry:
         return cls._absolute_time
 
     @classmethod
-    def get_time_entries(cls) -> dict:
+    def get_time_entries(cls) -> dict[tuple[Optional[int], str], "TimeEntry"]:  # TODO fix эту дичь
         return cls._all
 
     @property
@@ -65,7 +65,7 @@ class TimeEntry:
                 comments=self.comments,
             )
         else:
-            raise ValueError(f"Some attributes are required. Check time entry {self.description}")
+            raise Exception(f"Some attributes are required. Check time entry {self.description}")
         return
 
     @property

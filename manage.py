@@ -8,7 +8,7 @@ from config import CLOCKIFY_API_KEY, REDMINE_API_KEY
 from constants import redmine_url
 from utils import collect_data, push, report, report_push
 
-parser = argparse.ArgumentParser(description="My example explanation")
+parser = argparse.ArgumentParser(description="My example explanation")  # TODO причесать парсер аргументов
 parser.add_argument("command", type=str)
 parser.add_argument("--coeff", type=float, default=1.0)
 parser.add_argument("--target", type=float, default=0.0)

@@ -11,7 +11,7 @@ class TimeEntry:
     _absolute_time = 0.0  # TODO FIX плохой нейминг
     _all = dict()  # TODO FIX плохой нейминг
 
-    def __init__(
+    def __init__(  # TODO сделать через кварги
         self,
         issue_id: Optional[int] = None,
         description: str = "",

@@ -56,7 +56,7 @@ def collect_data(clockify: "ClockifySession", redmine: "Redmine", coeff: float =
 
 def report() -> None:
     table = [time_entry.get_report_data for time_entry in TimeEntry.get_time_entries().values()]
-    table.sort(key=lambda i: (i[2], i[0]), reverse=True)
+    table.sort(key=lambda i: (i[0], i[2]), reverse=True)
     print(
         tabulate(
             table,

@@ -8,7 +8,7 @@ from clockify.config import BASE_URL
 from dateutil import tz
 from tabulate import tabulate
 
-from config import CLOCKIFY_API_KEY
+from config import CLOCKIFY_API_KEY, TIMEZONE
 from constants import redmine_url_time_entry
 from models import TimeEntry
 
@@ -73,7 +73,7 @@ def collect_data(
         TimeEntry(
             user_id=redmine_user_id,
             spent_on=dateutil.parser.isoparse(clockify_time_entry.time_interval.start)
-            .astimezone(tz.gettz("Europe/Moscow"))
+            .astimezone(tz.gettz(TIMEZONE))
             .date(),
             description=clockify_time_entry.description[:70],
             hours=secs_to_hours(isodate.parse_duration(clockify_time_entry.time_interval.duration).total_seconds()),

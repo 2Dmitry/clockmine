@@ -102,7 +102,6 @@ def report() -> None:
         tabulate(
             table,
             headers=(
-                "Clockify Id",
                 "№ задачи",
                 "Можно затрекать",
                 "Тема/Описание",
@@ -140,7 +139,7 @@ def push(clockify: "ClockifySession", redmine: "Redmine") -> None:
             raise Exception(f"Some attributes are required. Check time entry '{time_entry.description}'")
 
     for time_entry in TimeEntry.get_time_entries().values():
-        time_entry.push_to_redmine(redmine)
+        # time_entry.push_to_redmine(redmine)
         pass
 
     # Delete

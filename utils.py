@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
 import dateutil.parser
@@ -10,17 +9,10 @@ from tabulate import tabulate
 
 from config import CLOCKIFY_API_KEY, TIMEZONE
 from constants import redmine_url_time_entry
-from models import TimeEntry
+from models import MyClockifySession, TimeEntry
 
 if TYPE_CHECKING:
-    from clockify.model.user_model import User
-    from clockify.session import ClockifySession
     from redminelib import Redmine
-
-
-def get_clockify_tags_map(clockify: "ClockifySession", clockify_workspace_id: str) -> dict[str, str]:
-    """Вернет словарь, где ключ - это строка в формате '648f1d8cabc41f2c318b5768', значение - 'Разработка'"""
-    return {tag.id_: tag.name for tag in clockify.tag.get_tags(clockify_workspace_id)}
 
 
 def get_rm_activities(redmine: "Redmine") -> dict[str, int]:
@@ -35,40 +27,18 @@ def secs_to_hours(secs: float) -> float:
 
 
 def collect_data(
-    clockify: "ClockifySession", redmine: "Redmine", coeff: Optional[float] = None, target: Optional[float] = None
+    clockify: "MyClockifySession", redmine: "Redmine", coeff: Optional[float] = None, target: Optional[float] = None
 ) -> None:
-    # Validators
-    clockify_user: "User" = clockify.get_current_user()
-    if not clockify_user:
-        raise Exception("Не смог получить Clockify-юзера")
-
-    clockify_user_id: str = clockify_user.id_ or ""
-    if not clockify_user_id:
-        raise Exception("Не смог получить id Clockify-юзера")
-
-    clockify_workspace_id = clockify_user.active_workspace
-    if not clockify_workspace_id:
-        raise Exception("Не смог получить активное Clockify-workspace")
-
     redmine_user_id = redmine.user.get("current").id
     if not redmine_user_id:
         raise Exception("Не смог получить активное Redmine-юзера")
 
-    # Stop timer
-    session = requests.Session()
-    session.headers.update({"x-api-key": CLOCKIFY_API_KEY})
-    session.patch(
-        url=f"{BASE_URL}/workspaces/{clockify_workspace_id}/user/{clockify_user_id}/time-entries",
-        json={"end": datetime.now().replace(microsecond=0).isoformat() + "Z"},
-    )
-
     # Parse
-    clockify_tags_map = get_clockify_tags_map(clockify, clockify_workspace_id)
-    for clockify_time_entry in clockify.time_entry.get_time_entries(clockify_workspace_id, clockify_user_id):
+    clockify_tags_map = clockify.tags_map()
+    for clockify_time_entry in clockify.time_entries():
+        rm_activity_name = "Разработка"
         if tag_ids := clockify_time_entry.tag_ids:
             rm_activity_name = clockify_tags_map[tag_ids[0]]
-        else:
-            rm_activity_name = "Разработка"
 
         TimeEntry(
             user_id=redmine_user_id,
@@ -119,35 +89,23 @@ def report() -> None:
     print(TimeEntry.get_absolute_time())
 
 
-def push(clockify: "ClockifySession", redmine: "Redmine") -> None:
-    # Validators
-    clockify_user: "User" = clockify.get_current_user()
-    if not clockify_user:
-        raise Exception("Не смог получить Clockify-юзера")
-
-    clockify_user_id = clockify_user.id_
-    if not clockify_user_id:
-        raise Exception("Не смог получить id Clockify-юзера")
-
-    clockify_workspace_id = clockify_user.active_workspace
-    if not clockify_workspace_id:
-        raise Exception("Не смог получить активное Clockify-workspace")
-
+def push(clockify: "MyClockifySession", redmine: "Redmine") -> None:
     # Push
     for time_entry in TimeEntry.get_time_entries().values():
         if not time_entry.can_push_to_redmine:
-            raise Exception(f"Some attributes are required. Check time entry '{time_entry.description}'")
+            raise Exception(
+                f"Some attributes are required. Check time entry '{time_entry.description}' and restart the command."
+            )
 
     for time_entry in TimeEntry.get_time_entries().values():
-        # time_entry.push_to_redmine(redmine)
-        pass
+        time_entry.push_to_redmine(redmine)
 
     # Delete
     session = requests.Session()
     session.headers.update({"x-api-key": CLOCKIFY_API_KEY})
     if TimeEntry.clockify_ids:
         res = session.delete(
-            url=f"{BASE_URL}/workspaces/{clockify_workspace_id}/user/{clockify_user_id}/time-entries",
+            url=f"{BASE_URL}/workspaces/{clockify.workspace_id}/user/{clockify.current_user_id}/time-entries",
             params={"time-entry-ids": TimeEntry.clockify_ids},
         )
         if res.status_code != 200:

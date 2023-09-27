@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 class MyRedmine(Redmine):
     @cached_property
-    def current_user(self) -> RmUser:
+    def current_user(self) -> "RmUser":
         if user := self.auth():
             return user
         else:
@@ -46,7 +46,7 @@ class MyClockifySession(ClockifySession):
         )
 
     @cached_property
-    def current_user(self) -> CfyUser:
+    def current_user(self) -> "CfyUser":
         current_user = self.get_current_user()
 
         if current_user:
@@ -68,7 +68,7 @@ class MyClockifySession(ClockifySession):
         else:
             raise Exception("User's active-workspace id not found.")
 
-    def time_entries(self) -> list[CfyTimeEntry]:
+    def time_entries(self) -> list["CfyTimeEntry"]:
         return (
             self.time_entry.get_time_entries(user_id=self.current_user_id, workspace_id=self.workspace_id)
             if self.current_user_id and self.workspace_id

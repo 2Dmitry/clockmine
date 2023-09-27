@@ -13,8 +13,7 @@ from config import CLOCKIFY_API_KEY
 class MyRedmine(Redmine):
     @cached_property
     def current_user(self):
-        user = self.user.get("current")
-        if user:
+        if user := self.user.get("current"):
             return user
         else:
             raise Exception("Не смог получить текущего Redmine-юзера")
@@ -28,10 +27,7 @@ class MyRedmine(Redmine):
 
     @cached_property
     def time_entry_activities(self) -> dict[str, int]:
-        res = {}
-        for data in self.enumeration.filter(resource="time_entry_activities").values():
-            res[data["name"]] = data["id"]
-        return res
+        return {_["name"]: _["id"] for _ in self.enumeration.filter(resource="time_entry_activities").values()}
 
 
 class MyClockifySession(ClockifySession):

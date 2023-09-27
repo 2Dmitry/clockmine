@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 import argparse
 
-from redminelib import Redmine
-
 from config import CLOCKIFY_API_KEY, REDMINE_API_KEY
 from constants import redmine_url
-from models import MyClockifySession
+from models import MyClockifySession, MyRedmine
 from utils import collect_data, push, report
 
 # Parse arguments
@@ -22,8 +20,8 @@ elif (my_namespace.coeff and my_namespace.coeff <= 0) or (my_namespace.target an
     raise Exception("Значение должно быть положительным")
 
 # Init clock&mine
-clockify = MyClockifySession(CLOCKIFY_API_KEY)
-redmine = Redmine(redmine_url, key=REDMINE_API_KEY)
+clockify = MyClockifySession(key=CLOCKIFY_API_KEY)
+redmine = MyRedmine(redmine_url, key=REDMINE_API_KEY)
 
 # Work
 collect_data(clockify, redmine, coeff=my_namespace.coeff, target=my_namespace.target)

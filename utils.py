@@ -9,17 +9,10 @@ from tabulate import tabulate
 
 from config import CLOCKIFY_API_KEY, TIMEZONE
 from constants import redmine_url_time_entry
-from models import MyClockifySession, TimeEntry
+from models import TimeEntry
 
 if TYPE_CHECKING:
-    from redminelib import Redmine
-
-
-def get_rm_activities(redmine: "Redmine") -> dict[str, int]:
-    res = {}
-    for data in redmine.enumeration.filter(resource="time_entry_activities").values():
-        res[data["name"]] = data["id"]
-    return res
+    from models import MyClockifySession, MyRedmine
 
 
 def secs_to_hours(secs: float) -> float:
@@ -27,12 +20,8 @@ def secs_to_hours(secs: float) -> float:
 
 
 def collect_data(
-    clockify: "MyClockifySession", redmine: "Redmine", coeff: Optional[float] = None, target: Optional[float] = None
+    clockify: "MyClockifySession", redmine: "MyRedmine", coeff: Optional[float] = None, target: Optional[float] = None
 ) -> None:
-    redmine_user_id = redmine.user.get("current").id
-    if not redmine_user_id:
-        raise Exception("Не смог получить активное Redmine-юзера")
-
     # Parse
     clockify_tags_map = clockify.tags_map()
     for clockify_time_entry in clockify.time_entries():
@@ -41,14 +30,14 @@ def collect_data(
             rm_activity_name = clockify_tags_map[tag_ids[0]]
 
         TimeEntry(
-            user_id=redmine_user_id,
+            user_id=redmine.current_user_id,
             spent_on=dateutil.parser.isoparse(clockify_time_entry.time_interval.start)
             .astimezone(tz.gettz(TIMEZONE))
             .date(),
             description=clockify_time_entry.description[:70],
             hours=secs_to_hours(isodate.parse_duration(clockify_time_entry.time_interval.duration).total_seconds()),
             rm_activity_name=rm_activity_name,
-            rm_activity_id=get_rm_activities(redmine).get(rm_activity_name),
+            rm_activity_id=redmine.time_entry_activities.get(rm_activity_name, None),
         )
         TimeEntry.clockify_ids.append(clockify_time_entry.id_)
 
@@ -89,7 +78,7 @@ def report() -> None:
     print(TimeEntry.get_absolute_time())
 
 
-def push(clockify: "MyClockifySession", redmine: "Redmine") -> None:
+def push(clockify: "MyClockifySession", redmine: "MyRedmine") -> None:
     # Push
     for time_entry in TimeEntry.get_time_entries().values():
         if not time_entry.can_push_to_redmine:

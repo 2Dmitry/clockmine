@@ -1,15 +1,37 @@
 from datetime import date, datetime
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 import requests
 from clockify.config import BASE_URL
 from clockify.session import ClockifySession
+from redminelib import Redmine
 
 from config import CLOCKIFY_API_KEY
 
-if TYPE_CHECKING:
-    from redminelib import Redmine
+
+class MyRedmine(Redmine):
+    @cached_property
+    def current_user(self):
+        user = self.user.get("current")
+        if user:
+            return user
+        else:
+            raise Exception("Не смог получить текущего Redmine-юзера")
+
+    @cached_property
+    def current_user_id(self) -> int:
+        if self.current_user and self.current_user.id:
+            return self.current_user.id
+        else:
+            raise Exception("User's Id not found.")
+
+    @cached_property
+    def time_entry_activities(self) -> dict[str, int]:
+        res = {}
+        for data in self.enumeration.filter(resource="time_entry_activities").values():
+            res[data["name"]] = data["id"]
+        return res
 
 
 class MyClockifySession(ClockifySession):
@@ -126,7 +148,7 @@ class TimeEntry:
             )
         )
 
-    def push_to_redmine(self, redmine: "Redmine") -> None:
+    def push_to_redmine(self, redmine: "MyRedmine") -> None:
         redmine.time_entry.create(
             issue_id=self.issue_id,
             spent_on=self.spent_on,

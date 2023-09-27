@@ -7,21 +7,34 @@ from clockify.config import BASE_URL
 from dateutil import tz
 from tabulate import tabulate
 
-from config import CLOCKIFY_API_KEY, TIMEZONE
-from constants import redmine_url_time_entry
+from config import REDMINE_ACTIVITIES_NOT_ALLOWED, REDMINE_URL_TIME_ENTRY, TIMEZONE
 from models import TimeEntry
 
 if TYPE_CHECKING:
     from models import MyClockifySession, MyRedmine
 
 
-def secs_to_hours(secs: float) -> float:
-    return round(secs / 3600, 2)
+def init(clockify: "MyClockifySession", redmine: "MyRedmine"):
+    for activity_name in redmine.time_entry_activities.keys():
+        if activity_name not in clockify.tags_map().values() and activity_name not in REDMINE_ACTIVITIES_NOT_ALLOWED:
+            clockify.create_tag(tag_name=activity_name)
+
+    for tag_id, tag_name in clockify.tags_map().items():
+        if tag_name not in redmine.time_entry_activities.keys():
+            clockify.delete_tag(tag_id=tag_id)
+
+    if len(clockify.tags()) > 3:
+        print(
+            "WARNING! Рекомендуется использовать не больше 3 (трёх) тегов. 4 тега и больше не помещаются в списке тегов в расширении Clockify для браузеров."
+        )
 
 
 def collect_data(
     clockify: "MyClockifySession", redmine: "MyRedmine", coeff: Optional[float] = None, target: Optional[float] = None
 ) -> None:
+    def _secs_to_hours(secs: float) -> float:
+        return round(secs / 3600, 2)
+
     # Parse
     clockify_tags_map = clockify.tags_map()
     for clockify_time_entry in clockify.time_entries():
@@ -35,7 +48,7 @@ def collect_data(
             .astimezone(tz.gettz(TIMEZONE))
             .date(),
             description=clockify_time_entry.description[:70],
-            hours=secs_to_hours(isodate.parse_duration(clockify_time_entry.time_interval.duration).total_seconds()),
+            hours=_secs_to_hours(isodate.parse_duration(clockify_time_entry.time_interval.duration).total_seconds()),
             rm_activity_name=rm_activity_name,
             rm_activity_id=redmine.time_entry_activities.get(rm_activity_name, None),
         )
@@ -54,8 +67,8 @@ def collect_data(
         TimeEntry._absolute_time *= valid_coeff
 
 
-def report() -> None:
-    table = [time_entry.get_report_data for time_entry in TimeEntry.get_time_entries().values()]
+def report(redmine: "MyRedmine") -> None:
+    table = [time_entry.get_report_data(redmine=redmine) for time_entry in TimeEntry.get_time_entries().values()]
     table.sort(key=lambda i: (i[0], i[2]), reverse=True)
     print(
         tabulate(
@@ -81,19 +94,17 @@ def report() -> None:
 def push(clockify: "MyClockifySession", redmine: "MyRedmine") -> None:
     # Push
     for time_entry in TimeEntry.get_time_entries().values():
-        if not time_entry.can_push_to_redmine:
+        if not time_entry.can_push_to_redmine(redmine=redmine):
             raise Exception(
                 f"Some attributes are required. Check time entry '{time_entry.description}' and restart the command."
             )
 
     for time_entry in TimeEntry.get_time_entries().values():
-        time_entry.push_to_redmine(redmine)
+        time_entry.push_to_redmine(redmine=redmine)
 
     # Delete
-    session = requests.Session()
-    session.headers.update({"x-api-key": CLOCKIFY_API_KEY})
     if TimeEntry.clockify_ids:
-        res = session.delete(
+        res = clockify.session.delete(
             url=f"{BASE_URL}/workspaces/{clockify.workspace_id}/user/{clockify.current_user_id}/time-entries",
             params={"time-entry-ids": TimeEntry.clockify_ids},
         )
@@ -102,4 +113,4 @@ def push(clockify: "MyClockifySession", redmine: "MyRedmine") -> None:
                 "Can't clear Clockify.", requests.HTTPError(f"HTTP ERROR {res.status_code}: {res.reason} - {res.text}")
             )
 
-    print(f"Посмотреть затреканное время за текущую неделю можно тут: {redmine_url_time_entry}")
+    print(f"Посмотреть затреканное время за текущую неделю можно тут:\n{REDMINE_URL_TIME_ENTRY}")

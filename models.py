@@ -1,19 +1,22 @@
 from datetime import date, datetime
 from functools import cached_property
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-import requests
 from clockify.config import BASE_URL
+from clockify.model.tag_model import Tag
 from clockify.session import ClockifySession
 from redminelib import Redmine
 
-from config import CLOCKIFY_API_KEY
+if TYPE_CHECKING:
+    from clockify.model.time_entry_model import TimeEntry as CfyTimeEntry
+    from clockify.model.user_model import User as CfyUser
+    from redminelib.resources.standard import User as RmUser
 
 
 class MyRedmine(Redmine):
     @cached_property
-    def current_user(self):
-        if user := self.user.get("current"):
+    def current_user(self) -> RmUser:
+        if user := self.auth():
             return user
         else:
             raise Exception("Не смог получить текущего Redmine-юзера")
@@ -37,15 +40,13 @@ class MyClockifySession(ClockifySession):
 
     def stop_timer(self) -> None:
         # Stop timer
-        session = requests.Session()
-        session.headers.update({"x-api-key": CLOCKIFY_API_KEY})
-        session.patch(
+        self.session.patch(
             url=f"{BASE_URL}/workspaces/{self.workspace_id}/user/{self.current_user_id}/time-entries",
             json={"end": datetime.now().replace(microsecond=0).isoformat() + "Z"},
         )
 
     @cached_property
-    def current_user(self):
+    def current_user(self) -> CfyUser:
         current_user = self.get_current_user()
 
         if current_user:
@@ -67,18 +68,24 @@ class MyClockifySession(ClockifySession):
         else:
             raise Exception("User's active-workspace id not found.")
 
-    def time_entries(self):
+    def time_entries(self) -> list[CfyTimeEntry]:
         return (
             self.time_entry.get_time_entries(user_id=self.current_user_id, workspace_id=self.workspace_id)
             if self.current_user_id and self.workspace_id
             else []
         )
 
-    def tags(self):
+    def tags(self) -> list[Tag]:
         return self.tag.get_tags(self.workspace_id) if self.workspace_id else []
 
     def tags_map(self) -> dict[str, str]:
         return {tag.id_: tag.name for tag in self.tags()}
+
+    def create_tag(self, tag_name: str) -> None:
+        self.tag.create_tag(Tag(name=tag_name, workspace_id=self.workspace_id))
+
+    def delete_tag(self, tag_id: str) -> None:
+        self.tag.delete_tag(workspace_id=self.workspace_id, tag_id=tag_id)
 
 
 class TimeEntry:
@@ -99,7 +106,7 @@ class TimeEntry:
         rm_activity_name: str = "Разработка",
         comments: str = "",
     ):
-        self.description = description
+        self.description = description.strip()
         self.issue_id = self.extract_id_from_desc(self.description)
         self.hours = hours
         TimeEntry._absolute_time = round(TimeEntry.get_absolute_time() + self.hours, 2)
@@ -117,6 +124,8 @@ class TimeEntry:
 
     def extract_id_from_desc(self, desc: str) -> str:
         id = ""
+        if desc.isdigit():
+            return desc
         for chunk in desc.split(" "):
             if "#" in chunk and chunk[1:].isdigit():
                 id = chunk[1:]
@@ -131,10 +140,17 @@ class TimeEntry:
     def get_time_entries(cls) -> dict[tuple[str, str], "TimeEntry"]:
         return cls._all
 
-    @property
-    def can_push_to_redmine(self) -> bool:
+    def can_push_to_redmine(self, redmine) -> bool:
+        try:
+            redmine.issue.get(self.issue_id)
+            issue_exists = True
+        except Exception:
+            print(f"ERROR! У вас нет доступа к задаче #{self.issue_id}")
+            issue_exists = False
+
         return all(
             (
+                issue_exists,
                 self.issue_id,
                 self.issue_id.isdigit(),
                 self.spent_on,
@@ -154,11 +170,10 @@ class TimeEntry:
             comments=self.comments,
         )
 
-    @property
-    def get_report_data(self) -> tuple:
+    def get_report_data(self, redmine) -> tuple:
         return (
             self.issue_id,
-            self.can_push_to_redmine,
+            self.can_push_to_redmine(redmine),
             self.description,
             self.hours,
             self.rm_activity_name,

@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import argparse
 
-from config import CLOCKIFY_API_KEY, REDMINE_API_KEY, REDMINE_URL
-from models import MyClockifySession, MyRedmine
-from utils import collect_data, init, push, report
+from utils.commands import collect_data, init, push, report
 
 # Parse arguments
 parser = argparse.ArgumentParser(description="My example explanation")
@@ -18,18 +16,14 @@ if my_namespace.coeff and my_namespace.target:
 elif (my_namespace.coeff and my_namespace.coeff <= 0) or (my_namespace.target and my_namespace.target <= 0):
     raise Exception("Значение должно быть положительным")
 
-# Init clock&mine
-clockify = MyClockifySession(key=CLOCKIFY_API_KEY)
-redmine = MyRedmine(url=REDMINE_URL, key=REDMINE_API_KEY)
-
 # Work
-collect_data(clockify=clockify, redmine=redmine, coeff=my_namespace.coeff, target=my_namespace.target)
+collect_data(coeff=my_namespace.coeff, target=my_namespace.target)
 if my_namespace.command == "init":
-    init(clockify=clockify, redmine=redmine)
+    init()
 elif my_namespace.command == "report":
-    report(redmine=redmine)
+    report()
 elif my_namespace.command == "push":
-    report(redmine=redmine)
-    push(clockify=clockify, redmine=redmine)
+    report()
+    push()
 else:
     raise Exception("Unknown command. Use 'dc exec app ./manage.py -h'")

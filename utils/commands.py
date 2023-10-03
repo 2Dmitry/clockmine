@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 import dateutil.parser
 import isodate
@@ -8,13 +8,12 @@ from dateutil import tz
 from tabulate import tabulate
 
 from config import REDMINE_ACTIVITIES_NOT_ALLOWED, REDMINE_URL_TIME_ENTRY, TIMEZONE
-from models import TimeEntry
+from models import clockify, redmine
+from models.time_entry import TimeEntry
+from utils.utils import hours_convert_to_humanize_hours
 
-if TYPE_CHECKING:
-    from models import MyClockifySession, MyRedmine
 
-
-def init(clockify: "MyClockifySession", redmine: "MyRedmine"):
+def init() -> None:
     for activity_name in redmine.time_entry_activities.keys():
         if activity_name not in clockify.tags_map().values() and activity_name not in REDMINE_ACTIVITIES_NOT_ALLOWED:
             clockify.create_tag(tag_name=activity_name)
@@ -29,9 +28,7 @@ def init(clockify: "MyClockifySession", redmine: "MyRedmine"):
         )
 
 
-def collect_data(
-    clockify: "MyClockifySession", redmine: "MyRedmine", coeff: Optional[float] = None, target: Optional[float] = None
-) -> None:
+def collect_data(coeff: Optional[float] = None, target: Optional[float] = None) -> None:
     def _secs_to_hours(secs: float) -> float:
         return round(secs / 3600, 2)
 
@@ -57,25 +54,25 @@ def collect_data(
     # Accept coeff
     valid_coeff = None
     if target is not None and 0 < target:
-        valid_coeff = target / TimeEntry.get_absolute_time()
+        valid_coeff = target / TimeEntry.get_absolute_time
     elif coeff is not None and 0 < coeff:
         valid_coeff = coeff
 
     if valid_coeff:
-        for te in TimeEntry.get_time_entries().values():
+        for te in TimeEntry.get_time_entries.values():
             te.hours *= valid_coeff
         TimeEntry._absolute_time *= valid_coeff
 
 
-def report(redmine: "MyRedmine") -> None:
-    table = [time_entry.get_report_data(redmine=redmine) for time_entry in TimeEntry.get_time_entries().values()]
-    table.sort(key=lambda i: (i[0], i[2]), reverse=True)
+def report() -> None:
+    table = [time_entry.get_report_data for time_entry in TimeEntry.get_time_entries.values()]
+    table.sort(key=lambda i: (i[1],), reverse=True)
     print(
         tabulate(
             table,
             headers=(
-                "№ задачи",
                 "Можно затрекать",
+                "№ задачи",
                 "Тема/Описание",
                 "Время",
                 "Деятельность",
@@ -88,19 +85,19 @@ def report(redmine: "MyRedmine") -> None:
             showindex="always",
         ),
     )
-    print(TimeEntry.get_absolute_time())
+    print(hours_convert_to_humanize_hours(TimeEntry.get_absolute_time), f"({TimeEntry.get_absolute_time})")
 
 
-def push(clockify: "MyClockifySession", redmine: "MyRedmine") -> None:
+def push() -> None:
     # Push
-    for time_entry in TimeEntry.get_time_entries().values():
-        if not time_entry.can_push_to_redmine(redmine=redmine):
+    for time_entry in TimeEntry.get_time_entries.values():
+        if not time_entry.can_push_to_redmine:
             raise Exception(
                 f"Some attributes are required. Check time entry '{time_entry.description}' and restart the command."
             )
 
-    for time_entry in TimeEntry.get_time_entries().values():
-        time_entry.push_to_redmine(redmine=redmine)
+    for time_entry in TimeEntry.get_time_entries.values():
+        time_entry.push_to_redmine
 
     # Delete
     if TimeEntry.clockify_ids:

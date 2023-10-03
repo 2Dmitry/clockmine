@@ -1,6 +1,6 @@
 from environs import Env
 
-from timezones import allowed_timezones
+from constants.timezones import allowed_timezones
 
 env = Env()
 env.read_env()

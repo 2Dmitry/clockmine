@@ -11,13 +11,6 @@ def hours_convert_to_humanize_hours(time: Union[float, int]) -> Optional[str]:
         return f"{hours}h {minutes}m"
 
 
-def extract_digit_from_desc(desc: str) -> Optional[str]:
-    _ = re.findall(r"\d+", desc)
-    for chunk in _:
-        if chunk.isdigit():
-            return chunk
-
-
 def extract_id_from_desc(desc: str) -> Optional[str]:
     _ = re.findall(r"\d+", desc)
     for chunk in _:

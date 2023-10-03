@@ -4,11 +4,7 @@ from typing import Optional
 
 from config import REDMINE_URL
 from models import redmine
-from utils.utils import (
-    extract_digit_from_desc,
-    extract_id_from_desc,
-    hours_convert_to_humanize_hours,
-)
+from utils.utils import extract_id_from_desc, hours_convert_to_humanize_hours
 
 
 class TimeEntry:
@@ -65,9 +61,8 @@ class TimeEntry:
             redmine.issue.get(self.issue_id)
             return True
         except Exception:
-            digit = extract_digit_from_desc(self.description)
             print(
-                f"ERROR! У вас нет доступа в Redmine к задаче #{digit} ({self.description} - {self.hours})\n{REDMINE_URL + 'issues/' + str(digit)}.\nДоступный диапазон задач для вас: с {redmine.old_issue_id} по {redmine.young_issue_id}\nP.S.Некоторые задачи внутри диапазона тоже недоступны, если вы не Степа.\n"
+                f"ERROR! У вас нет доступа в Redmine к задаче #{self.issue_id} ({self.description} - {self.hours})\n{REDMINE_URL + 'issues/' + self.issue_id}.\nДоступный диапазон задач для вас: с {redmine.old_issue_id} по {redmine.young_issue_id}\nP.S.Некоторые задачи внутри диапазона тоже недоступны, если вы не Степа.\n"
             )
             return False
 

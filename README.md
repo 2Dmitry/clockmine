@@ -1,6 +1,5 @@
 ## Установка
 
-
 ### 1. git clone
 ```bash
 git clone https://github.com/2Dmitry/clockmine.git
@@ -17,7 +16,6 @@ cp ./deploy/example/.env ./.env
 Копируем API-ключ для вашей учетной записи Redmine и вставляем его значение в переменную `REDMINE_API_KEY` в `.env` файле
 - Заходим в [`Моя учётная запись`](https://redmine.sbps.ru/my/account);
 - В крайнем правом блоке есть "Ключ доступа к API" -> "Показать".
-
 #### 2.2 Clockify
 - Создаем или логинимся (если уже есть) в учетную запись [`Clockify`](https://app.clockify.me/en/login), можно использовать учетную запись Google;
 - Переходим в [`настройки`](https://app.clockify.me/user/settings) и скролим в самый низ;
@@ -33,7 +31,6 @@ cp ./deploy/example/.env ./.env
   * нажимаем `ADD`;
   * Нажмите `refresh` в установленном приложении и зайдите в любую Redmine-задачу. Вы увидите, что появилась кнопка `Start timer`.
   
-
 ### 3. Предварительная настройка Clockmine
 - **Если** ваша таймзона отличается от `Europe/Moscow`, **то** в `.env` файле меняем значение переменной `TIMEZONE` на таймзону из списка разрешенных таймзон, перечисленных в файле `timezones.py`;
   * Default: таймзоной по умолчанию выбрана `Europe/Moscow`.
@@ -41,7 +38,6 @@ cp ./deploy/example/.env ./.env
   * Default: в консоль выводится [`такая`](https://redmine.sbps.ru/time_entries?utf8=%E2%9C%93&set_filter=1&sort=spent_on%3Adesc&f%5B%5D=spent_on&op%5Bspent_on%5D=w&f%5B%5D=user_id&op%5Buser_id%5D=%3D&v%5Buser_id%5D%5B%5D=me&f%5B%5D=&c%5B%5D=created_on&c%5B%5D=hours&c%5B%5D=activity&c%5B%5D=user&c%5B%5D=project&c%5B%5D=issue&group_by=spent_on&t%5B%5D=hours&t%5B%5D=) ссылка.
 - В переменной `REDMINE_ACTIVITIES_NOT_ALLOWED` указываем в формате python-списка деятельность, которой вы не пользуетесь при проставлении трудочасов;
   * Default: из доступных дейтельностей исключён "Безнес-анализ".
-
 
 ### 4. Полетели
 ```bash
@@ -58,7 +54,6 @@ docker-compose up -d
 docker-compose exec app ./manage.py init
 ```
 
-
 ### 5. Как пользоваться
 1. Запускаем таймер:
 - **Либо** Открываем задачу в Redmine и нажимаем кнопку "Start timer".
@@ -70,7 +65,6 @@ docker-compose exec app ./manage.py init
 - **Либо** Выполняем в терминале либо команду `report` и/или команду `push`
 `docker-compose exec app ./manage.py report`
 `docker-compose exec app ./manage.py push`
-
 
 ### 6. Правила
 1. В описании/заголовке затреканного времени в Clockify обязательно должен быть номер задачи, к которой у вас есть доступ в Redmine.
@@ -92,8 +86,8 @@ docker-compose exec app ./manage.py push
 docker-compose exec app ./manage.py push --coeff 1.073
 docker-compose exec app ./manage.py push --target 5.50
 ```
-- написанное вами число пройдет валидацию только если будет больше нуля
-- report - получить информацию о затреканном времени из Clockify
-- push - перенести затреканное время из Clockify в Redmine и удалить всё затреканное время в Clockify
-- coeff - умножает каждое затреканное время на значение coeff, т.е. можно легко затрекать 0.5 времени и не считать самому.
-- target - указывает итоговое суммарное значение затреканного времени, т.е. если вы суммарно затрекали 6.0h, но знаете что 30m вы оказывали консультации во многих задачах по чуть-чуть и никак не могли затрекать это время, то указывайте `--target 6.5`
+- введенное вами число пройдет валидацию, если будет больше нуля;
+- report - получить информацию о затреканном времени из Clockify;
+- push - перенести затреканное время из Clockify в Redmine и удалить всё затреканное время в Clockify;
+- coeff - умножает каждое затреканное время на значение coeff, т.е. можно легко затрекать 0.5 времени и не считать самому;
+- target - указывает итоговое суммарное значение затреканного времени, т.е. если вы суммарно затрекали 6.0h, но знаете что 30m вы оказывали консультации во многих задачах по чуть-чуть и никак не могли затрекать это время, то указывайте `--target 6.5`.

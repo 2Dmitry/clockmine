@@ -16,8 +16,8 @@ def extract_id_from_desc(desc: str) -> Optional[str]:
     for chunk in _:
         if (
             chunk.isdigit()
-            and redmine.young_issue_id
             and redmine.old_issue_id
+            and redmine.young_issue_id
             and (redmine.old_issue_id <= int(chunk) <= redmine.young_issue_id)
         ):
             return chunk

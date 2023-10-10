@@ -84,7 +84,7 @@ def report() -> None:
             showindex="always",
         ),
     )
-    print("Суммарное затреканное время:", hours_convert_to_humanize_hours(TimeEntry.get_absolute_time), f"({round(TimeEntry.get_absolute_time, 2)})")
+    print("Суммарное затреканное время:", hours_convert_to_humanize_hours(TimeEntry.get_absolute_time), f"({round(TimeEntry.get_absolute_time, 2)})h")
 
 
 def push() -> None:

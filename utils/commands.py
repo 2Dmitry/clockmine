@@ -4,11 +4,12 @@ import dateutil.parser
 import isodate
 import requests
 from clockify.config import BASE_URL
-from config import REDMINE_ACTIVITIES_NOT_ALLOWED, REDMINE_URL_TIME_ENTRY, TIMEZONE
 from dateutil import tz
+from tabulate import tabulate
+
+from config import REDMINE_ACTIVITIES_NOT_ALLOWED, REDMINE_URL_TIME_ENTRY, TIMEZONE
 from models import clockify, redmine
 from models.time_entry import TimeEntry
-from tabulate import tabulate
 from utils.utils import hours_convert_to_humanize_hours
 
 
@@ -84,7 +85,11 @@ def report() -> None:
             showindex="always",
         ),
     )
-    print("Суммарное затреканное время:", hours_convert_to_humanize_hours(TimeEntry.get_absolute_time), f"({round(TimeEntry.get_absolute_time, 2)})h")
+    print(
+        "Суммарное затреканное время:",
+        hours_convert_to_humanize_hours(TimeEntry.get_absolute_time),
+        f"({round(TimeEntry.get_absolute_time, 2)}h)",
+    )
 
 
 def push() -> None:

@@ -33,7 +33,7 @@ git clone https://github.com/2Dmitry/clockmine.git
 cd clockmine
 ```
 ```bash
-cp ./deploy/example/.env ./.env
+cp ./deploy/.env ./.env
 ```
 
 ### 2. Учетные записи

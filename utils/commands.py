@@ -4,12 +4,11 @@ import dateutil.parser
 import isodate
 import requests
 from clockify.config import BASE_URL
-from dateutil import tz
-from tabulate import tabulate
-
 from config import REDMINE_ACTIVITIES_NOT_ALLOWED, REDMINE_URL_TIME_ENTRY, TIMEZONE
+from dateutil import tz
 from models import clockify, redmine
 from models.time_entry import TimeEntry
+from tabulate import tabulate
 from utils.utils import hours_convert_to_humanize_hours
 
 
@@ -68,11 +67,11 @@ def report() -> None:
     table = [time_entry.get_report_data for time_entry in TimeEntry.get_time_entries.values()]
     table.sort(key=lambda i: (i[1],), reverse=True)
     print(
-        tabulate(
+        tabulate(  # honestly spizjeno from Yonapach <3
             table,
             headers=(
-                "Можно затрекать",
-                "№ задачи",
+                "Y/n",
+                "Task №",
                 "Тема/Описание",
                 "Время",
                 "Деятельность",
@@ -85,7 +84,7 @@ def report() -> None:
             showindex="always",
         ),
     )
-    print(hours_convert_to_humanize_hours(TimeEntry.get_absolute_time), f"({TimeEntry.get_absolute_time})")
+    print(hours_convert_to_humanize_hours(TimeEntry.get_absolute_time), f"({round(TimeEntry.get_absolute_time, 2)})")
 
 
 def push() -> None:

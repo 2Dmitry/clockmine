@@ -91,13 +91,14 @@ class TimeEntry:
 
     @property
     def get_report_data(self) -> tuple:
+        desc = self.get_rm_issue_subject or self.description
         return (
-            self.can_push_to_redmine,
+            {True: "v", False: "x"}.get(self.can_push_to_redmine),
             self.issue_id,
-            self.get_rm_issue_subject or self.description,
-            f"{hours_convert_to_humanize_hours(self.hours)} ({self.hours}h)",
+            desc[:60],
+            f"{hours_convert_to_humanize_hours(self.hours)} ({round(self.hours, 2)}h)",
             self.rm_activity_name,
-            self.spent_on,
+            self.spent_on.strftime("%d %B"),
             self.comments,
         )
 

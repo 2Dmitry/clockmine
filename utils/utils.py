@@ -5,10 +5,9 @@ from models import redmine
 
 
 def hours_convert_to_humanize_hours(time: Union[float, int]) -> Optional[str]:
-    if time:
-        hours = int(time)
-        minutes = int((time - hours) * 60)
-        return f"{hours}h {minutes}m"
+    hours = int(time)
+    minutes = int((time - hours) * 60)
+    return f"{hours}h {minutes}m"
 
 
 def extract_id_from_desc(desc: str) -> Optional[str]:

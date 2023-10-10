@@ -70,13 +70,13 @@ def report() -> None:
         tabulate(  # honestly spizjeno from Yonapach <3
             table,
             headers=(
-                "Y/n",
-                "Task №",
+                "Ok?",
+                "Task#",
                 "Тема/Описание",
                 "Время",
                 "Деятельность",
                 "Дата",
-                "Комментарий",
+                # "Комментарий",
             ),
             tablefmt="rounded_outline",
             numalign="decimal",
@@ -84,7 +84,7 @@ def report() -> None:
             showindex="always",
         ),
     )
-    print(hours_convert_to_humanize_hours(TimeEntry.get_absolute_time), f"({round(TimeEntry.get_absolute_time, 2)})")
+    print("Суммарное затреканное время:", hours_convert_to_humanize_hours(TimeEntry.get_absolute_time), f"({round(TimeEntry.get_absolute_time, 2)})")
 
 
 def push() -> None:

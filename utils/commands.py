@@ -66,7 +66,7 @@ def collect_data(coeff: Optional[float] = None, target: Optional[float] = None) 
 
 def report() -> None:
     table = [time_entry.get_report_data for time_entry in TimeEntry.get_time_entries.values()]
-    table.sort(key=lambda i: (i[1],), reverse=True)
+    table.sort(key=lambda i: (i[5], i[1],), reverse=True)
     print(
         tabulate(  # honestly spizjeno from Yonapach <3
             table,

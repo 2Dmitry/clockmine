@@ -6,7 +6,12 @@ env = Env()
 env.read_env()
 
 REDMINE_API_KEY = env("REDMINE_API_KEY")
+if not REDMINE_API_KEY:
+    raise Exception("ERROR! Вы заыли указать API ключ для Redmine")
+
 CLOCKIFY_API_KEY = env("CLOCKIFY_API_KEY")
+if not CLOCKIFY_API_KEY:
+    raise Exception("ERROR! Вы заыли указать API ключ для Clockify")
 
 TIMEZONE = env("TIMEZONE")
 if TIMEZONE not in allowed_timezones:

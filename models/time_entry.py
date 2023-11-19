@@ -36,9 +36,9 @@ class TimeEntry:
         self.comments = comments  # TODO В клокиефае нет комментариев
 
         key = (
-            (self.issue_id, self.rm_activity_name)
+            (self.issue_id, str(self.spent_on), self.rm_activity_name)
             if self.issue_id
-            else (self.issue_id, self.rm_activity_name, self.description)
+            else (self.issue_id, str(self.spent_on), self.rm_activity_name, self.description)
         )
         if _ := TimeEntry._all.get(key):
             _.hours += self.hours

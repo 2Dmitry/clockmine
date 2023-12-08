@@ -10,7 +10,7 @@ from tabulate import tabulate
 from config import REDMINE_ACTIVITIES_NOT_ALLOWED, REDMINE_URL_TIME_ENTRY, TIMEZONE
 from models import clockify, redmine
 from models.time_entry import TimeEntry
-from utils.utils import hours_convert_to_humanize_hours
+from utils.utils import extract_comment_from_desc, hours_convert_to_humanize_hours
 
 
 def init() -> None:
@@ -48,6 +48,7 @@ def collect_data(coeff: Optional[float] = None, target: Optional[float] = None) 
             hours=_secs_to_hours(isodate.parse_duration(clockify_time_entry.time_interval.duration).total_seconds()),
             rm_activity_name=rm_activity_name,
             rm_activity_id=redmine.time_entry_activities.get(rm_activity_name, None),
+            comments=extract_comment_from_desc(clockify_time_entry.description),
         )
         TimeEntry.clockify_ids.append(clockify_time_entry.id_)
 
@@ -66,7 +67,13 @@ def collect_data(coeff: Optional[float] = None, target: Optional[float] = None) 
 
 def report() -> None:
     table = [time_entry.get_report_data for time_entry in TimeEntry.get_time_entries.values()]
-    table.sort(key=lambda i: (i[5], i[1],), reverse=True)
+    table.sort(
+        key=lambda i: (
+            i[5],
+            i[1],
+        ),
+        reverse=True,
+    )
     print(
         tabulate(  # honestly spizjeno from Yonapach <3
             table,
@@ -77,7 +84,7 @@ def report() -> None:
                 "Время",
                 "Деятельность",
                 "Дата",
-                # "Комментарий",
+                "Комментарий",
             ),
             tablefmt="rounded_outline",
             numalign="decimal",

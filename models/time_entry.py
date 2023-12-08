@@ -4,7 +4,7 @@ from typing import Optional
 
 from config import REDMINE_URL
 from models import redmine
-from utils.utils import extract_id_from_desc, hours_convert_to_humanize_hours
+from utils.utils import clear_desc, extract_comment_from_desc, extract_id_from_desc, hours_convert_to_humanize_hours
 
 
 class TimeEntry:
@@ -33,15 +33,16 @@ class TimeEntry:
         self.rm_activity_id = rm_activity_id
         self.spent_on = spent_on
         self.user_id = user_id
-        self.comments = comments  # TODO В клокиефае нет комментариев
+        self.comments = comments
 
         key = (
             (self.issue_id, str(self.spent_on), self.rm_activity_name)
             if self.issue_id
-            else (self.issue_id, str(self.spent_on), self.rm_activity_name, self.description)
+            else (self.issue_id, str(self.spent_on), self.rm_activity_name, clear_desc(self.description))
         )
         if _ := TimeEntry._all.get(key):
             _.hours += self.hours
+            _.comments += self.comments
         else:
             TimeEntry._all[key] = self
 
@@ -62,7 +63,7 @@ class TimeEntry:
             return True
         except Exception:
             print(
-                f"ERROR! У вас нет доступа в Redmine к задаче #{self.issue_id} ({self.description} - {self.hours})\n{REDMINE_URL + 'issues/' + self.issue_id}.\nДоступный диапазон задач для вас: с {redmine.old_issue_id} по {redmine.young_issue_id}\nP.S.Некоторые задачи внутри диапазона тоже недоступны, если вы не Степа.\n"
+                f"ERROR! У вас нет доступа в Redmine к задаче #{self.issue_id or '<None>'} ({self.description} - {self.hours})\n{REDMINE_URL + 'issues/' + self.issue_id}.\nДоступный диапазон задач для вас: с {redmine.old_issue_id} по {redmine.young_issue_id}\nP.S.Некоторые задачи внутри диапазона тоже недоступны, если вы не Степа.\n"
             )
             return False
 
@@ -96,10 +97,10 @@ class TimeEntry:
             {True: "yes", False: "no"}.get(self.can_push_to_redmine),
             self.issue_id,
             desc[:60],
-            f"{hours_convert_to_humanize_hours(self.hours)} ({round(self.hours, 2)}h)",
+            f"{hours_convert_to_humanize_hours(self.hours)}",  # ({round(self.hours, 2)}h)",
             self.rm_activity_name,
-            self.spent_on.strftime("%d %B"),
-            # self.comments,
+            self.spent_on.strftime("%d %b"),
+            self.comments,
         )
 
     @property

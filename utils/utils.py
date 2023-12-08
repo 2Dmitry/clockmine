@@ -20,3 +20,16 @@ def extract_id_from_desc(desc: str) -> Optional[str]:
             and (redmine.old_issue_id <= int(chunk) <= redmine.young_issue_id)
         ):
             return chunk
+
+
+def extract_comment_from_desc(desc: str) -> str:
+    _ = desc.split("-ci")[1:]
+    res = ""
+    for chunk in _:
+        res += chunk.strip().lower() + "; "
+    return res
+
+
+def clear_desc(desc: str) -> str:
+    _ = desc.split("-ci")
+    return _[0] if _ else ""

@@ -4,7 +4,7 @@ from typing import Optional
 
 from config import REDMINE_URL
 from models import redmine
-from utils.utils import clear_desc, extract_comment_from_desc, extract_id_from_desc, hours_convert_to_humanize_hours
+from utils.utils import extract_title, extract_comment_from_desc, extract_id_from_desc, hours_convert_to_humanize_hours
 
 
 class TimeEntry:
@@ -38,11 +38,12 @@ class TimeEntry:
         key = (
             (self.issue_id, str(self.spent_on), self.rm_activity_name)
             if self.issue_id
-            else (self.issue_id, str(self.spent_on), self.rm_activity_name, clear_desc(self.description))
+            else (self.issue_id, str(self.spent_on), self.rm_activity_name, extract_title(self.description))
         )
         if _ := TimeEntry._all.get(key):
             _.hours += self.hours
-            _.comments += self.comments
+            if self.comments not in _.comments:
+                _.comments += self.comments
         else:
             TimeEntry._all[key] = self
 

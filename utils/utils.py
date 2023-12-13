@@ -30,6 +30,6 @@ def extract_comment_from_desc(desc: str) -> str:
     return res
 
 
-def clear_desc(desc: str) -> str:
+def extract_title(desc: str) -> str:
     _ = desc.split("-ci")
     return _[0] if _ else ""

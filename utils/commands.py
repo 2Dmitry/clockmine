@@ -13,6 +13,10 @@ from models.time_entry import TimeEntry
 from utils.utils import extract_comment_from_desc, hours_convert_to_humanize_hours
 
 
+def clean_desc() -> None:
+    clockify.clean_desc()
+
+
 def init() -> None:
     for activity_name in redmine.time_entry_activities.keys():
         if activity_name not in clockify.tags_map().values() and activity_name not in REDMINE_ACTIVITIES_NOT_ALLOWED:

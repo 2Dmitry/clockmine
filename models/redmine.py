@@ -24,7 +24,10 @@ class MyRedmine(Redmine):
 
     @cached_property
     def time_entry_activities(self) -> dict[str, int]:
-        return {_["name"]: _["id"] for _ in self.enumeration.filter(resource="time_entry_activities").values()}
+        return {
+            activity["name"]: activity["id"]
+            for activity in self.enumeration.filter(resource="time_entry_activities").values()
+        }
 
     @cached_property
     def young_issue_id(self) -> Optional[int]:

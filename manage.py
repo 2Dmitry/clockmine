@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import argparse
 
-from utils.commands import collect_data, init, push, report
+from utils.commands import clean_desc, collect_data, init, push, report
 
 # Parse arguments
 parser = argparse.ArgumentParser(description="My example explanation")
@@ -20,6 +20,8 @@ elif (my_namespace.coeff and my_namespace.coeff <= 0) or (my_namespace.target an
 collect_data(coeff=my_namespace.coeff, target=my_namespace.target)
 if my_namespace.command == "init":
     init()
+elif my_namespace.command == "clean":
+    clean_desc()
 elif my_namespace.command == "report":
     report()
 elif my_namespace.command == "push":

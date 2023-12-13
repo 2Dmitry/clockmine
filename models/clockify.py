@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from clockify.config import BASE_URL
 from clockify.model.tag_model import Tag
 from clockify.session import ClockifySession
+from config import REDMINE_TRACKERS
 
 if TYPE_CHECKING:
     from clockify.model.time_entry_model import TimeEntry as CfyTimeEntry
@@ -17,7 +18,6 @@ class MyClockify(ClockifySession):
         self.stop_timer()
 
     def stop_timer(self) -> None:
-        # Stop timer
         self.session.patch(
             url=f"{BASE_URL}/workspaces/{self.workspace_id}/user/{self.current_user_id}/time-entries",
             json={"end": datetime.now().replace(microsecond=0).isoformat() + "Z"},
@@ -52,6 +52,26 @@ class MyClockify(ClockifySession):
             if self.current_user_id and self.workspace_id
             else []
         )
+
+    def clean_desc(self) -> None:
+        for time_entry in self.time_entries():
+            for tracker in REDMINE_TRACKERS:
+                if time_entry.description.startswith(tracker):
+                    time_entry.description = time_entry.description.replace(f"{tracker} #", "")
+                    self.session.put(
+                        url=f"{BASE_URL}/workspaces/{self.workspace_id}/time-entries/{time_entry.id_}",
+                        json={
+                            "billable": time_entry.billable,
+                            "description": time_entry.description,
+                            "end": time_entry.time_interval.end,
+                            "id": time_entry.id_,
+                            "projectId": time_entry.project_id,
+                            "start": time_entry.time_interval.start,
+                            "tagIds": time_entry.tag_ids,
+                            "taskId": time_entry.task_id,
+                        },
+                    )
+                    break
 
     def tags(self) -> list[Tag]:
         return self.tag.get_tags(self.workspace_id) if self.workspace_id else []

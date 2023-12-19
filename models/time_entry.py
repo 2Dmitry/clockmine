@@ -38,12 +38,17 @@ class TimeEntry:
         key = (
             (self.issue_id, str(self.spent_on), self.rm_activity_name)
             if self.issue_id
-            else (self.issue_id, str(self.spent_on), self.rm_activity_name, extract_title(self.description))
+            else (
+                self.issue_id,
+                str(self.spent_on),
+                self.rm_activity_name,
+                extract_title(self.description),
+            )  # TODO FIXME extract_title в помойку надо
         )
-        if _ := TimeEntry._all.get(key):
-            _.hours += self.hours
-            if self.comments not in _.comments:
-                _.comments += self.comments
+        if time_entry := TimeEntry._all.get(key):
+            time_entry.hours += self.hours
+            if self.comments not in time_entry.comments:
+                time_entry.comments += self.comments
         else:
             TimeEntry._all[key] = self
 
@@ -61,12 +66,13 @@ class TimeEntry:
     def has_access_to_issue(self) -> bool:
         try:
             redmine.issue.get(self.issue_id)
-            return True
+            has_access = True
         except Exception:
             print(
                 f"ERROR! У вас нет доступа в Redmine к задаче #{self.issue_id or '<None>'} ({self.description} - {self.hours})\n{REDMINE_URL + 'issues/' + self.issue_id}.\nДоступный диапазон задач для вас: с {redmine.old_issue_id} по {redmine.young_issue_id}\nP.S.Некоторые задачи внутри диапазона тоже недоступны, если вы не Степа.\n"
             )
-            return False
+            has_access = False
+        return has_access
 
     @property
     def can_push_to_redmine(self) -> bool:
@@ -80,7 +86,6 @@ class TimeEntry:
             )
         )
 
-    @property
     def push_to_redmine(self) -> None:
         redmine.time_entry.create(
             issue_id=self.issue_id,
@@ -92,18 +97,18 @@ class TimeEntry:
         )
 
     @property
-    def get_report_data(self) -> tuple:
-        desc = self.get_rm_issue_subject or self.description
+    def report_data(self) -> tuple:
+        desc = self.rm_issue_subject or self.description
         return (
             {True: "yes", False: "no"}.get(self.can_push_to_redmine),
             self.issue_id,
-            desc[:60],
+            desc[:20],
             f"{hours_convert_to_humanize_hours(self.hours)}",  # ({round(self.hours, 2)}h)",
-            self.rm_activity_name,
+            self.rm_activity_name[:12],
             self.spent_on.strftime("%d %b"),
             self.comments,
         )
 
     @property
-    def get_rm_issue_subject(self) -> Optional[str]:
+    def rm_issue_subject(self) -> Optional[str]:
         return issue.subject if self.has_access_to_issue and (issue := redmine.issue.get(self.issue_id)) else None

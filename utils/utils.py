@@ -11,21 +11,14 @@ def hours_convert_to_humanize_hours(time: Union[float, int]) -> Optional[str]:
 
 
 def extract_id_from_desc(desc: str) -> Optional[str]:
-    _ = re.findall(r"\d+", desc)
-    for chunk in _:
-        if (
-            chunk.isdigit()
-            and redmine.old_issue_id
-            and redmine.young_issue_id
-            and (redmine.old_issue_id <= int(chunk) <= redmine.young_issue_id)
-        ):
+    for chunk in re.findall(r"\d+", desc):
+        if chunk.isdigit():
             return chunk
 
 
 def extract_comment_from_desc(desc: str) -> str:
-    _ = desc.split("-ci")[1:]
     res = ""
-    for chunk in _:
+    for chunk in desc.split("-ci")[1:]:
         res += chunk.strip().lower() + "; "
     return res
 

@@ -10,7 +10,7 @@ parser.add_argument("-c", "--coeff", type=float, help="coefficient for every tim
 parser.add_argument("-t", "--target", type=float, help="total time entry")
 my_namespace = parser.parse_args()
 
-# Validator arguments
+# Validate arguments
 if my_namespace.coeff and my_namespace.target:
     raise Exception("Укажите максимум одно значение")
 elif (my_namespace.coeff and my_namespace.coeff <= 0) or (my_namespace.target and my_namespace.target <= 0):

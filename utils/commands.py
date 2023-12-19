@@ -19,14 +19,14 @@ def clean_desc() -> None:
 
 def init() -> None:
     for activity_name in redmine.time_entry_activities.keys():
-        if activity_name not in clockify.tags_map().values() and activity_name not in REDMINE_ACTIVITIES_NOT_ALLOWED:
+        if activity_name not in clockify.tags_map.values() and activity_name not in REDMINE_ACTIVITIES_NOT_ALLOWED:
             clockify.create_tag(tag_name=activity_name)
 
-    for tag_id, tag_name in clockify.tags_map().items():
+    for tag_id, tag_name in clockify.tags_map.items():
         if tag_name not in redmine.time_entry_activities.keys():
             clockify.delete_tag(tag_id=tag_id)
 
-    if len(clockify.tags()) > 3:
+    if len(clockify.tags) > 3:
         print(
             "INFO. Рекомендуется использовать не больше 3 (трёх) тегов. 4 тега и больше не помещаются в списке тегов в расширении Clockify для браузеров."
         )
@@ -37,8 +37,8 @@ def collect_data(coeff: Optional[float] = None, target: Optional[float] = None) 
         return round(secs / 3600, 2)
 
     # Parse
-    clockify_tags_map = clockify.tags_map()
-    for clockify_time_entry in clockify.time_entries():
+    clockify_tags_map = clockify.tags_map
+    for clockify_time_entry in clockify.get_time_entries():
         rm_activity_name = "Разработка"
         if tag_ids := clockify_time_entry.tag_ids:
             rm_activity_name = clockify_tags_map[tag_ids[0]]
@@ -70,7 +70,7 @@ def collect_data(coeff: Optional[float] = None, target: Optional[float] = None) 
 
 
 def report() -> None:
-    table = [time_entry.get_report_data for time_entry in TimeEntry.get_time_entries.values()]
+    table = [time_entry.report_data for time_entry in TimeEntry.get_time_entries.values()]
     table.sort(
         key=lambda i: (
             i[5],
@@ -112,7 +112,7 @@ def push() -> None:
             )
 
     for time_entry in TimeEntry.get_time_entries.values():
-        time_entry.push_to_redmine
+        time_entry.push_to_redmine()
 
     # Delete
     if TimeEntry.clockify_ids:

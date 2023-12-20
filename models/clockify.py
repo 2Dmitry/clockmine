@@ -62,7 +62,7 @@ class MyClockify(ClockifySession):
             # comment = f"-ci {splt[1].strip()}" if len(splt) > 1 else ""
 
             new_desc = (
-                f"{extract_id_from_desc(time_entry.description)}{extract_comment_from_desc(time_entry.description)}"
+                f"{extract_id_from_desc(time_entry.description)}-ci {extract_comment_from_desc(time_entry.description)}"
             )
             if new_desc:
                 time_entry.description = new_desc

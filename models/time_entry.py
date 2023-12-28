@@ -83,6 +83,7 @@ class TimeEntry:
                 0 < self.hours,
                 self.rm_activity_id,
                 self.user_id,
+                self.comments,
             )
         )
 

@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 1200px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "orange", "id": 22717, "label": "22717\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u0412 \u0440\u0430\u0431\u043e\u0442\u0435\n\u041d\u0430\u0437\u0430\u0440\u043e\u0432\n333", "shape": "dot", "size": 40.0}, {"color": "gray", "id": 23256, "label": "23256\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n299", "shape": "dot", "size": 2.5}, {"color": "gray", "id": 23544, "label": "23544\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n286", "shape": "dot", "size": 25.0}, {"color": "orange", "id": 23678, "label": "23678\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435 \u0438 \u0434\u043e\u0440\u0430\u0431\u043e\u0442\u043a\u0435\n\u0410\u0440\u0442\u0435\u043c\u0435\u043d\u043a\u043e\n280", "shape": "dot", "size": 20.0}, {"color": "orange", "id": 23920, "label": "23920\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435 \u0438 \u0434\u043e\u0440\u0430\u0431\u043e\u0442\u043a\u0435\n\u0421\u043b\u0438\u0437\u043a\u043e\u0432\u0430\n266", "shape": "dot", "size": 60.0}, {"color": "red", "id": 24679, "label": "24679\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u043d\u0438\u0435\n\u0414\u0440\u043e\u0436\u0436\u0438\u043d\n224", "shape": "dot", "size": 40.0}, {"color": "green", "id": 26230, "label": "26230\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u0435\u0442 \u0440\u0435\u043b\u0438\u0437, \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u0430\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n139", "shape": "dot", "size": 15.0}, {"color": "red", "id": 26433, "label": "26433\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u043d\u0438\u0435\n\u0421\u043b\u0438\u0437\u043a\u043e\u0432\u0430\n130", "shape": "dot", "size": 4.0}, {"color": "orange", "id": 26538, "label": "26538\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u0412 \u0440\u0430\u0431\u043e\u0442\u0435\n\u0410\u0440\u0442\u0435\u043c\u0435\u043d\u043a\u043e\n125", "shape": "dot", "size": 13.0}, {"color": "orange", "id": 26580, "label": "26580\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435 \u0438 \u0434\u043e\u0440\u0430\u0431\u043e\u0442\u043a\u0435\n\u0411\u0438\u0440\u044e\u043a\u043e\u0432\n123", "shape": "dot", "size": 40.0}, {"color": "orange", "id": 26678, "label": "26678\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u0412 \u0440\u0430\u0431\u043e\u0442\u0435\n\u0411\u0438\u0440\u044e\u043a\u043e\u0432\n114", "shape": "dot", "size": 7.0}, {"color": "orange", "id": 26679, "label": "26679\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435 \u0438 \u0434\u043e\u0440\u0430\u0431\u043e\u0442\u043a\u0435\n\u0421\u043b\u0438\u0437\u043a\u043e\u0432\u0430\n114", "shape": "dot", "size": 15.0}, {"color": "gray", "id": 26680, "label": "26680\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n\u0421\u043b\u0438\u0437\u043a\u043e\u0432\u0430\n114", "shape": "dot", "size": 15.0}, {"color": "green", "id": 26681, "label": "26681\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u0435\u0442 \u0440\u0435\u043b\u0438\u0437, \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u0430\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n114", "shape": "dot", "size": 15.0}, {"color": "orange", "id": 26682, "label": "26682\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435 \u0438 \u0434\u043e\u0440\u0430\u0431\u043e\u0442\u043a\u0435\n\u0421\u043b\u0438\u0437\u043a\u043e\u0432\u0430\n114", "shape": "dot", "size": 6.5}, {"color": "gray", "id": 26686, "label": "26686\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n114", "shape": "dot", "size": 9.0}, {"color": "orange", "id": 26714, "label": "26714\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435 \u0438 \u0434\u043e\u0440\u0430\u0431\u043e\u0442\u043a\u0435\n\u0427\u0435\u0440\u043d\u043e\u0432\n113", "shape": "dot", "size": 3.0}, {"color": "orange", "id": 26715, "label": "26715\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435 \u0438 \u0434\u043e\u0440\u0430\u0431\u043e\u0442\u043a\u0435\n\u0421\u043b\u0438\u0437\u043a\u043e\u0432\u0430\n113", "shape": "dot", "size": 15.0}, {"color": "orange", "id": 26794, "label": "26794\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435 \u0438 \u0434\u043e\u0440\u0430\u0431\u043e\u0442\u043a\u0435\n\u041c\u0438\u0445\u0430\u0439\u043b\u043e\u0432\n109", "shape": "dot", "size": 55.0}, {"color": "red", "id": 26798, "label": "26798\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u043d\u0438\u0435\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n109", "shape": "dot", "size": 13.0}, {"color": "orange", "id": 26799, "label": "26799\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435 \u0438 \u0434\u043e\u0440\u0430\u0431\u043e\u0442\u043a\u0435\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n109", "shape": "dot", "size": 35.0}, {"color": "red", "id": 26807, "label": "26807\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u043d\u0438\u0435\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n108", "shape": "dot", "size": 17.0}, {"color": "red", "id": 26808, "label": "26808\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u043d\u0438\u0435\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n107", "shape": "dot", "size": 20.0}, {"color": "red", "id": 26811, "label": "26811\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u043d\u0438\u0435\n\u0422\u0438\u0445\u043e\u043d\u0435\u043d\u043a\u043e\n107", "shape": "dot", "size": 16.0}, {"color": "red", "id": 26818, "label": "26818\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u043d\u0438\u0435\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n106", "shape": "dot", "size": 25.0}, {"color": "red", "id": 26820, "label": "26820\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u043d\u0438\u0435\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n106", "shape": "dot", "size": 45.0}, {"color": "gray", "id": 26830, "label": "26830\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n106", "shape": "dot", "size": 40.0}, {"color": "red", "id": 26833, "label": "26833\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u043d\u0438\u0435\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n106", "shape": "dot", "size": 30.0}, {"color": "gray", "id": 26834, "label": "26834\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n106", "shape": "dot", "size": 30.0}, {"color": "gray", "id": 26835, "label": "26835\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n106", "shape": "dot", "size": 30.0}, {"color": "red", "id": 26836, "label": "26836\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u043d\u0438\u0435\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n106", "shape": "dot", "size": 30.0}, {"color": "gray", "id": 26929, "label": "26929\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n100", "shape": "dot", "size": 55.0}, {"color": "gray", "id": 26947, "label": "26947\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n99", "shape": "dot", "size": 30.0}, {"color": "gray", "id": 26958, "label": "26958\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n99", "shape": "dot", "size": 20.0}, {"color": "gray", "id": 26964, "label": "26964\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n99", "shape": "dot", "size": 20.0}, {"color": "green", "id": 26967, "label": "26967\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u0435\u0442 \u0440\u0435\u043b\u0438\u0437, \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u0430\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n99", "shape": "dot", "size": 35.0}, {"color": "gray", "id": 26982, "label": "26982\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n98", "shape": "dot", "size": 35.0}, {"color": "gray", "id": 27023, "label": "27023\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n97", "shape": "dot", "size": 30.0}, {"color": "gray", "id": 27024, "label": "27024\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n97", "shape": "dot", "size": 25.0}, {"color": "green", "id": 27035, "label": "27035\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u0435\u0442 \u0440\u0435\u043b\u0438\u0437, \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u0430\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n96", "shape": "dot", "size": 10.0}, {"color": "gray", "id": 27093, "label": "27093\n\u0410\u043d\u0430\u043b\u0438\u0442\u0438\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n\u0421\u043b\u0438\u0437\u043a\u043e\u0432\u0430\n93", "shape": "dot", "size": 20}, {"color": "gray", "id": 27133, "label": "27133\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n92", "shape": "dot", "size": 33.0}, {"color": "orange", "id": 27166, "label": "27166\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u0412 \u0440\u0430\u0431\u043e\u0442\u0435\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n90", "shape": "dot", "size": 15.0}, {"color": "green", "id": 27465, "label": "27465\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u0435\u0442 \u0440\u0435\u043b\u0438\u0437, \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u0430\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n77", "shape": "dot", "size": 12.0}, {"color": "orange", "id": 27476, "label": "27476\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u0412 \u0440\u0430\u0431\u043e\u0442\u0435\n\u041a\u0430\u0440\u043d\u0430\u0443\u0445\u043e\u0432\n77", "shape": "dot", "size": 20.0}, {"color": "green", "id": 27496, "label": "27496\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u0435\u0442 \u0440\u0435\u043b\u0438\u0437, \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u0430\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n76", "shape": "dot", "size": 4.0}, {"color": "gray", "id": 27860, "label": "27860\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n\u0421\u043b\u0438\u0437\u043a\u043e\u0432\u0430\n49", "shape": "dot", "size": 12.0}, {"color": "gray", "id": 27863, "label": "27863\n\u041f\u043e\u0434\u0434\u0435\u0440\u0436\u043a\u0430 (\u043d\u0435 \u043f\u0440\u043e\u0434)\n\u041d\u043e\u0432\u0430\u044f\n---\n49", "shape": "dot", "size": 3.0}, {"color": "orange", "id": 27954, "label": "27954\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435 \u0438 \u0434\u043e\u0440\u0430\u0431\u043e\u0442\u043a\u0435\n\u0421\u0435\u0440\u0433\u0435\u0435\u0432\u0430\n47", "shape": "dot", "size": 10.0}, {"color": "orange", "id": 28205, "label": "28205\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435 \u0438 \u0434\u043e\u0440\u0430\u0431\u043e\u0442\u043a\u0435\n\u0410\u0440\u0442\u0435\u043c\u0435\u043d\u043a\u043e\n39", "shape": "dot", "size": 20.0}, {"color": "gray", "id": 28381, "label": "28381\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n34", "shape": "dot", "size": 10.0}, {"color": "red", "id": 28479, "label": "28479\n\u0410\u043d\u0430\u043b\u0438\u0442\u0438\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u043d\u0438\u0435 \u0440\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0438\n\u0421\u043b\u0438\u0437\u043a\u043e\u0432\u0430\n29", "shape": "dot", "size": 20}, {"color": "orange", "id": 28590, "label": "28590\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u0430 \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0435 \u0438 \u0434\u043e\u0440\u0430\u0431\u043e\u0442\u043a\u0435\n\u0421\u043b\u0438\u0437\u043a\u043e\u0432\u0430\n27", "shape": "dot", "size": 5.0}, {"color": "gray", "id": 28651, "label": "28651\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n25", "shape": "dot", "size": 4.5}, {"color": "gray", "id": 29020, "label": "29020\n\u041f\u043e\u0434\u0434\u0435\u0440\u0436\u043a\u0430 (\u043d\u0435 \u043f\u0440\u043e\u0434)\n\u041d\u043e\u0432\u0430\u044f\n---\n12", "shape": "dot", "size": 5.0}, {"color": "green", "id": 29155, "label": "29155\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041e\u0436\u0438\u0434\u0430\u0435\u0442 \u0440\u0435\u043b\u0438\u0437, \u043f\u0440\u043e\u0432\u0435\u0440\u0435\u043d\u0430\n\u041c\u043e\u0438\u0441\u0435\u0435\u0432\n6", "shape": "dot", "size": 4.0}, {"color": "gray", "id": 29173, "label": "29173\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n5", "shape": "dot", "size": 5.0}, {"color": "gray", "id": 29245, "label": "29245\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n2", "shape": "dot", "size": 12.0}, {"color": "gray", "id": 29246, "label": "29246\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n2", "shape": "dot", "size": 4.0}, {"color": "gray", "id": 29247, "label": "29247\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n2", "shape": "dot", "size": 6.5}, {"color": "gray", "id": 29248, "label": "29248\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n2", "shape": "dot", "size": 8.0}, {"color": "gray", "id": 29249, "label": "29249\n\u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430\n\u041d\u043e\u0432\u0430\u044f\n---\n2", "shape": "dot", "size": 8.0}]);
+                  edges = new vis.DataSet([{"from": 26714, "to": 26686}, {"from": 26794, "to": 26798}, {"from": 26807, "to": 26799}, {"from": 26799, "to": 26808}, {"from": 26794, "to": 26818}, {"from": 26794, "to": 26830}, {"from": 23920, "to": 26538}, {"from": 26794, "to": 26836}, {"from": 26818, "to": 26836}, {"from": 26794, "to": 26833}, {"from": 26794, "to": 26834}, {"from": 26794, "to": 26835}, {"from": 26681, "to": 26678}, {"from": 26681, "to": 26682}, {"from": 26929, "to": 26947}, {"from": 26830, "to": 26958}, {"from": 26833, "to": 26958}, {"from": 26834, "to": 26958}, {"from": 26835, "to": 26958}, {"from": 26929, "to": 26958}, {"from": 26929, "to": 26964}, {"from": 26799, "to": 26982}, {"from": 26830, "to": 26982}, {"from": 26833, "to": 26982}, {"from": 26834, "to": 26982}, {"from": 26835, "to": 26982}, {"from": 26836, "to": 26982}, {"from": 26929, "to": 26982}, {"from": 26794, "to": 26811}, {"from": 26830, "to": 27023}, {"from": 26833, "to": 27023}, {"from": 26834, "to": 27023}, {"from": 26830, "to": 27024}, {"from": 26833, "to": 27024}, {"from": 26834, "to": 27024}, {"from": 26835, "to": 27024}, {"from": 26836, "to": 27024}, {"from": 26929, "to": 27024}, {"from": 26678, "to": 26679}, {"from": 23920, "to": 23678}, {"from": 26818, "to": 26929}, {"from": 27035, "to": 27133}, {"from": 27496, "to": 27465}, {"from": 26820, "to": 26811}, {"from": 26830, "to": 26811}, {"from": 26835, "to": 26811}, {"from": 26834, "to": 26811}, {"from": 26833, "to": 26811}, {"from": 26682, "to": 27860}, {"from": 26682, "to": 26680}, {"from": 27860, "to": 26680}, {"from": 28205, "to": 27863}, {"from": 26714, "to": 28381}, {"from": 26679, "to": 28381}, {"from": 27863, "to": 29020}, {"from": 23678, "to": 28651}, {"from": 29155, "to": 27465}, {"from": 26794, "to": 26820}, {"from": 28590, "to": 26433}, {"from": 29245, "to": 29246}, {"from": 29247, "to": 29248}, {"from": 27476, "to": 29249}, {"from": 28205, "to": 26807}, {"from": 26798, "to": 29173}, {"from": 27863, "to": 26807}, {"from": 27863, "to": 27954}, {"from": 26682, "to": 26678}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"nodes": {"borderWidthSelected": null, "size": null}, "edges": {"arrows": {"to": {"enabled": true}}, "color": {"inherit": true}, "selfReferenceSize": null, "selfReference": {"angle": 0.7853981633974483}, "smooth": false}, "layout": {"hierarchical": {"enabled": true, "levelSeparation": 300, "nodeSpacing": 30, "treeSpacing": 30, "sortMethod": "directed"}}, "interaction": {"zoomSpeed": 0.5}, "physics": {"hierarchicalRepulsion": {"centralGravity": 0, "springLength": 60, "nodeDistance": 200, "avoidOverlap": null}, "minVelocity": 0.75, "solver": "hierarchicalRepulsion", "timestep": 1}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

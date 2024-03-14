@@ -64,12 +64,14 @@ cur.execute(
         tr."name" tracker_name,
         istat."name" status_name,
         u.lastname lastname,
-        i.created_on
+        i.created_on,
+        cv.value
     FROM
         issues i
         JOIN trackers tr ON tr.id = i.tracker_id
         JOIN issue_statuses istat ON istat.id = i.status_id
         LEFT JOIN users u ON u.id = i.assigned_to_id
+        JOIN castom_values cv ON cv.customized_id = i.id
     WHERE
         i.id IN {tuple(task_ids)}
 """

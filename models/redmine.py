@@ -28,17 +28,3 @@ class MyRedmine(Redmine):
             activity["name"]: activity["id"]
             for activity in self.enumeration.filter(resource="time_entry_activities").values()
         }
-
-    @cached_property
-    def young_issue_id(self) -> Optional[int]:
-        id = None
-        for issue in self.issue.all(sort="id:desc", limit=1):
-            id = issue.id
-        return id
-
-    @cached_property
-    def old_issue_id(self) -> Optional[int]:
-        id = None
-        for issue in self.issue.all(sort="id:asc", limit=1):
-            id = issue.id
-        return id

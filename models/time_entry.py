@@ -36,19 +36,20 @@ class TimeEntry:
         self.comments = comments
 
         key = (
-            (self.issue_id, str(self.spent_on), self.rm_activity_name)
+            (self.issue_id, str(self.spent_on), self.rm_activity_name, self.comments)
             if self.issue_id
             else (
                 self.issue_id,
                 str(self.spent_on),
                 self.rm_activity_name,
                 extract_title(self.description),
+                self.comments,
             )  # TODO FIXME extract_title в помойку надо
         )
         if time_entry := TimeEntry._all.get(key):
             time_entry.hours += self.hours
-            if self.comments not in time_entry.comments:
-                time_entry.comments += self.comments
+            # if self.comments not in time_entry.comments:
+            #     time_entry.comments += self.comments
         else:
             TimeEntry._all[key] = self
 
@@ -69,7 +70,7 @@ class TimeEntry:
             has_access = True
         except Exception:
             print(
-                f"ERROR! У вас нет доступа в Redmine к задаче #{self.issue_id or '<None>'} ({self.description} - {self.hours})\n{REDMINE_URL + 'issues/' + self.issue_id}.\nДоступный диапазон задач для вас: с {redmine.old_issue_id} по {redmine.young_issue_id}\nP.S.Некоторые задачи внутри диапазона тоже недоступны, если вы не Степа.\n"
+                f"ERROR! У вас нет доступа в Redmine к задаче #{self.issue_id or '<None>'} ({self.description} - {self.hours})\n{REDMINE_URL + 'issues/' + self.issue_id}.\n"
             )
             has_access = False
         return has_access

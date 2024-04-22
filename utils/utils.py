@@ -19,7 +19,7 @@ def extract_id_from_desc(desc: str) -> Optional[str]:
 def extract_comment_from_desc(desc: str) -> str:
     res = ""
     for chunk in desc.split("-ci")[1:]:
-        res += chunk.strip().lower()
+        res += chunk.strip()
     return res
 
 

@@ -23,12 +23,12 @@ def init() -> None:
             clockify.create_tag(tag_name=activity_name)
 
     for tag_id, tag_name in clockify.tags_map.items():
-        if tag_name not in redmine.time_entry_activities.keys():
+        if tag_name not in redmine.time_entry_activities.keys() or tag_name in REDMINE_ACTIVITIES_NOT_ALLOWED:
             clockify.delete_tag(tag_id=tag_id)
 
     if len(clockify.tags) > 3:
         print(
-            "INFO. Рекомендуется использовать не больше 3 (трёх) тегов. 4 тега и больше не помещаются в списке тегов в расширении Clockify для браузеров."
+            "[INFO] Рекомендуется использовать не больше 3 (трёх) тегов. 4 тега и больше не помещаются в списке тегов в расширении Clockify для браузеров."
         )
 
 

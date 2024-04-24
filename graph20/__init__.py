@@ -1,9 +1,16 @@
+"""
+* create venv *
+$ pip install -r requirements.txt
+$ python
+*copy and paste code*
+"""
+
 from datetime import date, datetime
 import psycopg2
 from pyvis.network import Network
 import networkx as nx
 
-from constants import COLORS, OPTIONS
+from graph20.constants import COLORS, OPTIONS, PRIORITY
 
 # from config import DATABASE_URI_REPORTS_REDMINE
 DATABASE_URI_REPORTS_REDMINE = "postgresql://milov:ger6u36udsdjetyiyufhjdf@redmine.sbps.ru:5436/postgres"
@@ -27,7 +34,7 @@ cur.execute(
         issues i
     WHERE
         i.project_id = 69
-        -- AND i.status_id NOT IN (5, 10)
+        AND i.status_id NOT IN (5, 10)
 """
 )
 tasks = cur.fetchall()
@@ -64,11 +71,13 @@ cur.execute(
         tr."name" tracker_name,
         istat."name" status_name,
         u.lastname lastname,
-        i.created_on
+        i.created_on,
+        i.priority_id
     FROM
         issues i
         JOIN trackers tr ON tr.id = i.tracker_id
         JOIN issue_statuses istat ON istat.id = i.status_id
+
         LEFT JOIN users u ON u.id = i.assigned_to_id
     WHERE
         i.id IN {tuple(task_ids)}
@@ -79,13 +88,13 @@ print("Расширенный список задач: ", len(tasks))
 nodes = []
 for task in tasks:
     # Выкидываем некоторые задачи из графа
-    # if task[3] in ("Выполнена", "Отменена"):
-    #     continue
+    if task[3] in ("Выполнена", "Отменена"):
+        continue
     nodes.append(task[0])
     net.add_node(
         task[0],
         size=(task[1] or 20),
-        label=f"{task[0]}\n{task[2]}\n{task[3]}\n{task[4] or '---'}\n{(date.today() - datetime.date(task[5])).days}",
+        label=f"{task[0]}\n{task[2]} {PRIORITY[task[6]]}\n{task[3]}\n{task[4] or '---'}\n{(date.today() - datetime.date(task[5])).days}",
         color=COLORS.get(task[3], ""),
     )
 

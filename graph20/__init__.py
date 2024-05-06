@@ -1,8 +1,10 @@
 """
 * create venv *
+$ python3 -m ensurepip
+$ python3 -m pip install --upgrade pip
 $ pip install -r requirements.txt
 $ python
-*copy and paste code*
+$ import graph20
 """
 
 from datetime import date, datetime
@@ -34,6 +36,7 @@ cur.execute(
         issues i
     WHERE
         i.project_id = 69
+        AND i.tracker_id != 6
         AND i.status_id NOT IN (5, 10)
 """
 )
@@ -86,9 +89,12 @@ cur.execute(
 tasks = cur.fetchall()
 print("Расширенный список задач: ", len(tasks))
 nodes = []
+count = 0
+skipped_count = 0
 for task in tasks:
     # Выкидываем некоторые задачи из графа
     if task[3] in ("Выполнена", "Отменена"):
+        skipped_count += 1
         continue
     nodes.append(task[0])
     net.add_node(
@@ -97,6 +103,9 @@ for task in tasks:
         label=f"{task[0]}\n{task[2]} {PRIORITY[task[6]]}\n{task[3]}\n{task[4] or '---'}\n{(date.today() - datetime.date(task[5])).days}",
         color=COLORS.get(task[3], ""),
     )
+    count += 1
+print(f"Всего пропущено задач: {skipped_count}")
+print(f"Всего нарисовано задач: {count}")
 
 # Строим связи только для нарисованных задач
 for link in links:

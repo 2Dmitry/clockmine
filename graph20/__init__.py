@@ -22,6 +22,7 @@ DATABASE_URI_REPORTS_REDMINE = "postgresql://milov:ger6u36udsdjetyiyufhjdf@redmi
 conn = psycopg2.connect(DATABASE_URI_REPORTS_REDMINE)
 cur = conn.cursor()
 
+# todo fixme я зачем-то создаю пустой диграф, хотя тут нужно инициализировать его а потом для визуализации импортировать в пайвиз
 G = nx.DiGraph()  # создаём объект графа
 net = Network(height="1200px")
 net.from_nx(G)
@@ -98,14 +99,15 @@ nodes = []
 count = 0
 skipped_count = 0
 for task in tasks:
+    # todo fixme тут нужно не выкидывать те задачи, которые были в списке обязательных
     # Выкидываем закрытые задачи
     # if task[3] in ("Выполнена", "Отменена"):
     #     skipped_count += 1
     #     continue
     # Выкидываем задачи не текущего плана
-    if task[7] not in ("4. План",):
-        skipped_count += 1
-        continue
+    # if task[7] not in ("4. План",):
+    #     skipped_count += 1
+    #     continue
     nodes.append(task[0])
     net.add_node(
         task[0],

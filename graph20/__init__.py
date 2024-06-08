@@ -34,10 +34,13 @@ cur.execute(
         i.id
     FROM
         issues i
+        left join custom_values cv22 on cv22.customized_id = i.id
     WHERE
         i.project_id = 69
         AND i.tracker_id != 6
         AND i.status_id NOT IN (5, 10)
+        and cv22.custom_field_id = 22
+        and cv22.value = '24_2'
 """
 )
 tasks = cur.fetchall()
@@ -75,15 +78,18 @@ cur.execute(
         istat."name" status_name,
         u.lastname lastname,
         i.created_on,
-        i.priority_id
+        i.priority_id,
+        cv21.value as "Группа"
     FROM
         issues i
         JOIN trackers tr ON tr.id = i.tracker_id
         JOIN issue_statuses istat ON istat.id = i.status_id
 
         LEFT JOIN users u ON u.id = i.assigned_to_id
+        LEFT JOIN custom_values cv21 ON cv21.customized_id = i.id
     WHERE
         i.id IN {tuple(task_ids)}
+        AND cv21.custom_field_id = 21
 """
 )
 tasks = cur.fetchall()
@@ -92,15 +98,19 @@ nodes = []
 count = 0
 skipped_count = 0
 for task in tasks:
-    # Выкидываем некоторые задачи из графа
-    if task[3] in ("Выполнена", "Отменена"):
+    # Выкидываем закрытые задачи
+    # if task[3] in ("Выполнена", "Отменена"):
+    #     skipped_count += 1
+    #     continue
+    # Выкидываем задачи не текущего плана
+    if task[7] not in ("4. План",):
         skipped_count += 1
         continue
     nodes.append(task[0])
     net.add_node(
         task[0],
         size=(task[1] or 20),
-        label=f"{task[0]}\n{task[2]} {PRIORITY[task[6]]}\n{task[3]}\n{task[4] or '---'}\n{(date.today() - datetime.date(task[5])).days}",
+        label=f"{task[7]} {task[0]}\n{task[2]} {PRIORITY[task[6]]}\n{task[3]}\n{task[4] or '---'}\n{(date.today() - datetime.date(task[5])).days}",
         color=COLORS.get(task[3], ""),
     )
     count += 1

@@ -14,8 +14,7 @@ import networkx as nx
 
 from graph20.constants import COLORS, OPTIONS, PRIORITY
 
-# from config import DATABASE_URI_REPORTS_REDMINE
-DATABASE_URI_REPORTS_REDMINE = "postgresql://milov:ger6u36udsdjetyiyufhjdf@redmine.sbps.ru:5436/postgres"
+from config import DATABASE_URI_REPORTS_REDMINE
 
 # from .constants import COLORS, OPTIONS
 

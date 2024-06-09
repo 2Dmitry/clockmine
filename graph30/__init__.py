@@ -11,7 +11,7 @@ from graph30 import G
 get_incorrect_links(G)
 """
 
-from typing import Literal
+from typing import TYPE_CHECKING
 import networkx as nx
 from graph30.constants import COLORS
 from graph30.models import RedmineTask
@@ -24,10 +24,13 @@ from graph30.utils import (
     get_incorrect_links,
 )
 
+if TYPE_CHECKING:
+    from graph30.typing import FilterType
+
 NEED_REMOVE_SOLO_NODES = True
-FILTER: Literal["all", "opened", "quarter", "quarter_plan"] = "all"
-LAYERS = 8
-NEED_INCORRECT_LINKS_ANALYZE = True
+FILTER: "FilterType" = "quarter"
+LAYERS: int = 8
+NEED_INCORRECT_LINKS_ANALYZE: bool = True
 G = nx.DiGraph()
 
 musthave_task_ids = get_musthave_crm_task_ids(filter=FILTER)

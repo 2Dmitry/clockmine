@@ -11,9 +11,10 @@ connect = psycopg2.connect(DATABASE_URI_REPORTS_REDMINE)
 
 if TYPE_CHECKING:
     from networkx import DiGraph
+    from graph30.typing import FilterType
 
 
-def get_musthave_crm_task_ids(filter: Literal["all", "opened", "quarter", "quarter_plan"]) -> set[int]:
+def get_musthave_crm_task_ids(filter: "FilterType") -> set[int]:
     result = []
     cursor = connect.cursor()
 
@@ -49,7 +50,7 @@ def get_musthave_crm_task_ids(filter: Literal["all", "opened", "quarter", "quart
         cursor.execute(
             """
             SELECT
-                i.id,
+                i.id
             FROM
                 issues i
                 LEFT JOIN custom_values cv22 ON cv22.customized_id = i.id
@@ -82,6 +83,19 @@ def get_musthave_crm_task_ids(filter: Literal["all", "opened", "quarter", "quart
                 AND cv22.value = '24_2'
                 AND cv21.custom_field_id = 21
                 AND cv21.value = '4. План'
+            """
+        )
+        result = cursor.fetchall()
+
+    elif filter == "custom":
+        cursor.execute(
+            """
+            SELECT
+                i.id
+            FROM
+                issues i
+            WHERE
+                i.project_id = 61
             """
         )
         result = cursor.fetchall()
@@ -123,13 +137,17 @@ def get_redmine_tasks(task_ids: set) -> list[RedmineTask]:
             u.lastname lastname,
             i.created_on,
             i.priority_id,
-            i.subject
+            i.subject,
+            cv21.value,
+            cv22.value
         FROM
             issues i
             JOIN trackers tr ON tr.id = i.tracker_id
             JOIN issue_statuses istat ON istat.id = i.status_id
 
             LEFT JOIN users u ON u.id = i.assigned_to_id
+            LEFT JOIN custom_values cv21 on cv21.customized_id = i.id and cv21.custom_field_id = 21
+            LEFT JOIN custom_values cv22 on cv22.customized_id = i.id and cv22.custom_field_id = 22
         WHERE
             i.id IN {str(tuple(task_ids)).replace(",)", ")")}
         """
@@ -143,8 +161,8 @@ def get_redmine_tasks(task_ids: set) -> list[RedmineTask]:
                 subject=row[7],
                 estimated_hours=row[1],
                 responsible_lastname=row[4],
-                group="",
-                quarter="",
+                group=row[8] or "---",
+                quarter=row[9] or "---",
                 tracker=row[2],
                 status=row[3],
                 d_create=row[5],

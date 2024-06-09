@@ -9,13 +9,7 @@ COLORS = {
     "Выполнена": "gray",
 }
 
-PRIORITY = {
-    1: "Низкий",
-    2: "Нормальный",
-    3: "Высокий",
-    4: "Срочный",
-    5: "Немедленный",
-}
+PRIORITY = {1: "Низкий", 2: "Нормальный", 3: "Высокий", 4: "Срочный", 5: "Немедленный"}
 
 OPTIONS = """
     const options = {
@@ -25,26 +19,26 @@ OPTIONS = """
         },
         "edges": {
             "arrows": {
-            "to": {
-                "enabled": true
-            }
+                "to": {
+                    "enabled": true
+                }
             },
             "color": {
-            "inherit": true
+                "inherit": true
             },
             "selfReferenceSize": null,
             "selfReference": {
-            "angle": 0.7853981633974483
+                "angle": 0.7853981633974483
             },
             "smooth": false
         },
         "layout": {
             "hierarchical": {
-            "enabled": true,
-            "levelSeparation": 300,
-            "nodeSpacing": 30,
-            "treeSpacing": 30,
-            "sortMethod": "directed"
+                "enabled": true,
+                "levelSeparation": 300,
+                "nodeSpacing": 30,
+                "treeSpacing": 30,
+                "sortMethod": "directed"
             }
         },
         "interaction": {
@@ -52,10 +46,10 @@ OPTIONS = """
         },
         "physics": {
             "hierarchicalRepulsion": {
-            "centralGravity": 0,
-            "springLength": 60,
-            "nodeDistance": 200,
-            "avoidOverlap": null
+                "centralGravity": 0,
+                "springLength": 60,
+                "nodeDistance": 200,
+                "avoidOverlap": null
             },
             "minVelocity": 0.75,
             "solver": "hierarchicalRepulsion",

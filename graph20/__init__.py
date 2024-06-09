@@ -8,13 +8,13 @@ $ import graph20
 """
 
 from datetime import date, datetime
+
+import networkx as nx
 import psycopg2
 from pyvis.network import Network
-import networkx as nx
-
-from graph20.constants import COLORS, OPTIONS, PRIORITY
 
 from config import DATABASE_URI_REPORTS_REDMINE
+from graph20.constants import COLORS, OPTIONS, PRIORITY
 
 # from .constants import COLORS, OPTIONS
 
@@ -41,7 +41,7 @@ cur.execute(
         AND i.status_id NOT IN (5, 10)
         and cv22.custom_field_id = 22
         and cv22.value = '24_2'
-"""
+    """
 )
 tasks = cur.fetchall()
 print("Вы взяли задачи: ", len(tasks))
@@ -61,7 +61,7 @@ cur.execute(
             ir.issue_from_id IN {s}
             OR ir.issue_to_id IN {s}
         )
-"""
+    """
 )
 links = cur.fetchall()
 print("Кол-во связей: ", len(links))
@@ -90,7 +90,7 @@ cur.execute(
     WHERE
         i.id IN {tuple(task_ids)}
         AND cv21.custom_field_id = 21
-"""
+    """
 )
 tasks = cur.fetchall()
 print("Расширенный список задач: ", len(tasks))
@@ -126,6 +126,6 @@ for link in links:
 # net.show_buttons()
 net.set_options(OPTIONS)
 
-net.show("graph.html", notebook=False)  # save visualization in 'graph.html'
+net.show("graph20.html", notebook=False)  # save visualization in 'graph.html'
 
 conn.close()

@@ -1,5 +1,8 @@
 [tool.ruff]
 line-length = 120
 
+[tool.ruff.format]
+skip-magic-trailing-comma = true
+
 [tool.ruff.lint.isort]
 split-on-trailing-comma = false

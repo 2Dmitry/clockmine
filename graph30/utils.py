@@ -95,7 +95,10 @@ def get_musthave_crm_task_ids(filter: "FilterType") -> set[int]:
             FROM
                 issues i
             WHERE
-                i.project_id = 61
+                i.project_id in (23, 63, 59, 30, 62, 73, 60, 61)
+                and i.id > 24000
+                AND i.tracker_id != 6
+                AND i.status_id NOT IN (5, 10)
             """
         )
         result = cursor.fetchall()
@@ -139,7 +142,8 @@ def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
             i.priority_id,
             i.subject,
             cv21.value,
-            cv22.value
+            cv22.value,
+            i.project_id
         FROM
             issues i
             JOIN trackers tr ON tr.id = i.tracker_id
@@ -166,6 +170,7 @@ def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
             tracker=row[2],
             status=row[3],
             d_create=row[5],
+            project_id=row[10],
         )
 
     return result

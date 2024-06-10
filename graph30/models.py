@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from graph30.constants import GROUP_MAP, PRIORITY, QUARTER_MAP
+from graph30.constants import COLORS, GROUP_MAP, PRIORITY, QUARTER_MAP
 
 
 class RedmineTaskUtils:
@@ -42,6 +42,7 @@ class RedmineTask:
     tracker: str
     status: str
     d_create: datetime
+    project_id: int
 
     @property
     def priority(self) -> str:
@@ -54,3 +55,15 @@ class RedmineTask:
         priority = self.priority_id
 
         return quarter * 100 + group * 10 + priority
+
+    @property
+    def color(self) -> str:
+        color = ""
+        if self.project_id == 69:
+            if self.quarter == "24_2":
+                color = COLORS.get(self.status, "")
+            else:
+                color = "gray"
+        else:
+            color = COLORS.get(self.status, "")
+        return color

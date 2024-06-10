@@ -125,7 +125,7 @@ def get_task_blocked_links(task_ids: set[int]) -> list[tuple[int, int]]:
     return cursor.fetchall()
 
 
-def get_redmine_tasks(task_ids: set) -> list[RedmineTask]:
+def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
     cursor = connect.cursor()
     cursor.execute(
         f"""
@@ -153,21 +153,19 @@ def get_redmine_tasks(task_ids: set) -> list[RedmineTask]:
         """
     )
 
-    result = []
+    result = dict()
     for row in cursor.fetchall():
-        result.append(
-            RedmineTask(
-                id=row[0],
-                subject=row[7],
-                estimated_hours=row[1],
-                responsible_lastname=row[4],
-                group=row[8] or "---",
-                quarter=row[9] or "---",
-                tracker=row[2],
-                status=row[3],
-                d_create=row[5],
-                priority_id=row[6],
-            )
+        result[row[0]] = RedmineTask(
+            id=row[0],
+            subject=row[7],
+            estimated_hours=row[1],
+            responsible_lastname=row[4],
+            quarter=row[9],
+            group=row[8],
+            priority_id=row[6],
+            tracker=row[2],
+            status=row[3],
+            d_create=row[5],
         )
 
     return result
@@ -237,6 +235,27 @@ def get_incorrect_links(G: "DiGraph") -> list[dict[Literal["incorect", "corect"]
         for start, _, end in path3:
             if (start, end) in path2:
                 result.append({"incorect": (start, end), "correct": (start, _, end)})
+    return result
+
+
+def get_incorrect_priority(G: "DiGraph", tasks: dict[int, "RedmineTask"]):
+    result = []
+    nodes_without_roots = set(G.nodes) - get_roots(G)
+    for node in G.nodes:
+        paths = tuple(nx.all_simple_paths(G, source=node, target=nodes_without_roots, cutoff=2))
+
+        for path in paths:
+            pre_task = None
+            post_task = None
+            pre_code = 999
+
+            for elem in path:
+                post_task = tasks.get(elem)
+                post_code = post_task.code
+                if pre_code < post_code:
+                    result.append([pre_task.id, post_task.id])
+                pre_task = post_task
+                pre_code = post_code
     return result
 
 

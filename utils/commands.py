@@ -26,11 +26,6 @@ def init() -> None:
         if tag_name not in redmine.time_entry_activities.keys() or tag_name in REDMINE_ACTIVITIES_NOT_ALLOWED:
             clockify.delete_tag(tag_id=tag_id)
 
-    if len(clockify.tags) > 3:
-        print(
-            "[INFO] Рекомендуется использовать не больше 3 (трёх) тегов. 4 тега и больше не помещаются в списке тегов в расширении Clockify для браузеров."
-        )
-
 
 def collect_data(coeff: Optional[float] = None, target: Optional[float] = None) -> None:
     def _secs_to_hours(secs: float) -> float:
@@ -59,59 +54,44 @@ def collect_data(coeff: Optional[float] = None, target: Optional[float] = None) 
     # Accept coeff
     valid_coeff = None
     if target is not None and 0 < target:
-        valid_coeff = target / TimeEntry.get_absolute_time
+        valid_coeff = target / TimeEntry.get_absolute_time()
     elif coeff is not None and 0 < coeff:
         valid_coeff = coeff
 
     if valid_coeff:
-        for te in TimeEntry.get_time_entries.values():
+        for te in TimeEntry.get_time_entries().values():
             te.hours *= valid_coeff
         TimeEntry._absolute_time *= valid_coeff
 
 
 def report() -> None:
-    table = [time_entry.report_data for time_entry in TimeEntry.get_time_entries.values()]
-    table.sort(
-        key=lambda i: (
-            i[5],
-            i[1],
-        ),
-        reverse=True,
-    )
+    table = [time_entry.report_data for time_entry in TimeEntry.get_time_entries().values()]
+    table.sort(key=lambda i: (i[5], i[1]), reverse=True)
     print(
         tabulate(  # honestly spizjeno from Yonapach <3
             table,
-            headers=(
-                "Ok?",
-                "Task#",
-                "Тема/Описание",
-                "Время",
-                "Деятельность",
-                "Дата",
-                "Комментарий",
-            ),
+            headers=("Ok?", "Task#", "Тема/Описание", "Время", "Деятельность", "Дата", "Комментарий"),
             tablefmt="rounded_outline",
             numalign="decimal",
             floatfmt=".2f",
             showindex="always",
-        ),
+        )
     )
+    absolute_time = TimeEntry.get_absolute_time()
     print(
-        "Суммарное затреканное время:",
-        hours_convert_to_humanize_hours(TimeEntry.get_absolute_time),
-        f"({round(TimeEntry.get_absolute_time, 2)}h)",
+        "Суммарное затреканное время:", hours_convert_to_humanize_hours(absolute_time), f"({round(absolute_time, 2)}h)"
     )
 
 
 def push() -> None:
     # Push
-    for time_entry in TimeEntry.get_time_entries.values():
+    for time_entry in TimeEntry.get_time_entries().values():
         if not time_entry.can_push_to_redmine:
             raise Exception(
                 f"Some attributes are required. Check time entry '{time_entry.description}' and restart the command."
             )
 
-    for time_entry in TimeEntry.get_time_entries.values():
+    for time_entry in TimeEntry.get_time_entries().values():
         time_entry.push_to_redmine()
 
     # Delete

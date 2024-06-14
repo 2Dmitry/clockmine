@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 from clockify.config import BASE_URL
 from clockify.model.tag_model import Tag
 from clockify.session import ClockifySession
-from config import REDMINE_TRACKERS
 from utils.utils import extract_comment_from_desc, extract_id_from_desc
 
 if TYPE_CHECKING:

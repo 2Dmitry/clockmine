@@ -4,7 +4,7 @@ from typing import Optional
 
 from config import REDMINE_URL
 from models import redmine
-from utils.utils import extract_title, extract_comment_from_desc, extract_id_from_desc, hours_convert_to_humanize_hours
+from utils.utils import extract_title, extract_id_from_desc, hours_convert_to_humanize_hours
 
 
 class TimeEntry:
@@ -28,7 +28,7 @@ class TimeEntry:
         self.description = description.strip()
         self.issue_id = extract_id_from_desc(self.description) or ""
         self.hours = hours
-        TimeEntry._absolute_time = round(TimeEntry.get_absolute_time + self.hours, 2)
+        TimeEntry._absolute_time = round(TimeEntry.get_absolute_time() + self.hours, 2)
         self.rm_activity_name = rm_activity_name
         self.rm_activity_id = rm_activity_id
         self.spent_on = spent_on
@@ -54,12 +54,10 @@ class TimeEntry:
             TimeEntry._all[key] = self
 
     @classmethod
-    @property
     def get_absolute_time(cls) -> float:
         return cls._absolute_time
 
     @classmethod
-    @property
     def get_time_entries(cls) -> dict[tuple[str, str], "TimeEntry"]:
         return cls._all
 
@@ -78,14 +76,7 @@ class TimeEntry:
     @property
     def can_push_to_redmine(self) -> bool:
         return all(
-            (
-                self.has_access_to_issue,
-                self.spent_on,
-                0 < self.hours,
-                self.rm_activity_id,
-                self.user_id,
-                self.comments,
-            )
+            (self.has_access_to_issue, self.spent_on, 0 < self.hours, self.rm_activity_id, self.user_id, self.comments)
         )
 
     def push_to_redmine(self) -> None:

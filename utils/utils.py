@@ -1,8 +1,6 @@
 import re
 from typing import Optional, Union
 
-from models import redmine
-
 
 def hours_convert_to_humanize_hours(time: Union[float, int]) -> Optional[str]:
     hours = int(time)

@@ -19,11 +19,11 @@ from graph30 import utils
 if TYPE_CHECKING:
     from graph30.typing import FilterType
 
-FILTER: "FilterType" = "quarter_plan"
-ADDITIONAL_TASK_IDS: set[int] = set()  # {30827, 31615, 31300}
-LAYERS: int = 1
-NEED_INCORRECT_LINKS_ANALYZE: bool = False
-NEED_INCORRECT_PRIORITY_ANALYZE: bool = False
+FILTER: "FilterType" = "quarter"
+ADDITIONAL_TASK_IDS: set[int] = {30827, 31615, 31300}  # set()  #
+LAYERS: int = 2
+NEED_INCORRECT_LINKS_ANALYZE: bool = True
+NEED_INCORRECT_PRIORITY_ANALYZE: bool = True
 NEED_REMOVE_SOLO_NODES = False
 G = nx.DiGraph()
 

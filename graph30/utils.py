@@ -239,7 +239,7 @@ def get_incorrect_links(G: "DiGraph") -> list[dict[Literal["incorect", "corect"]
 
         for start, _, end in path3:
             if (start, end) in path2:
-                result.append({"incorect": (start, end), "correct": (start, _, end)})
+                result.append({"correct": (start, end), "incorect": (start, _, end)})
     return result
 
 

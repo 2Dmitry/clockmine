@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from graph30.constants import COLORS, GROUP_MAP, PRIORITY, QUARTER_MAP
+from graph30 import QUARTER
 
 
 class RedmineTaskUtils:
@@ -60,7 +61,7 @@ class RedmineTask:
     def color(self) -> str:
         color = ""
         if self.project_id == 69:
-            if self.quarter == "24_2":
+            if self.quarter == QUARTER:
                 color = COLORS.get(self.status, "")
             else:
                 color = "gray"

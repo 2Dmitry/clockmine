@@ -20,14 +20,15 @@ if TYPE_CHECKING:
     from graph30.typing import FilterType
 
 FILTER: "FilterType" = "quarter"
-ADDITIONAL_TASK_IDS: set[int] = {30827, 31615, 31300}  # set()  #
+QUARTER = "24_3"
+ADDITIONAL_TASK_IDS: set[int] = set()  # {30827, 31615, 31300}  # set()
 LAYERS: int = 2
 NEED_INCORRECT_LINKS_ANALYZE: bool = True
 NEED_INCORRECT_PRIORITY_ANALYZE: bool = True
 NEED_REMOVE_SOLO_NODES = False
 G = nx.DiGraph()
 
-musthave_task_ids = utils.get_musthave_crm_task_ids(filter=FILTER)
+musthave_task_ids = utils.get_musthave_crm_task_ids(filter=FILTER, quarter=QUARTER)
 if ADDITIONAL_TASK_IDS:
     musthave_task_ids.update(ADDITIONAL_TASK_IDS)
 print(f"{musthave_task_ids=}")

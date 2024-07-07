@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, Optional
 from pyvis.network import Network
 from graph30.constants import OPTIONS
 import networkx as nx
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from graph30.typing import FilterType
 
 
-def get_musthave_crm_task_ids(filter: "FilterType") -> set[int]:
+def get_musthave_crm_task_ids(filter: "FilterType", quarter: Optional[str] = None) -> set[int]:
     result = []
     cursor = connect.cursor()
 
@@ -46,9 +46,9 @@ def get_musthave_crm_task_ids(filter: "FilterType") -> set[int]:
         )
         result = cursor.fetchall()
 
-    elif filter == "quarter":
+    elif filter == "quarter" and quarter:
         cursor.execute(
-            """
+            f"""
             SELECT
                 i.id
             FROM
@@ -59,14 +59,14 @@ def get_musthave_crm_task_ids(filter: "FilterType") -> set[int]:
                 AND i.tracker_id != 6
                 AND i.status_id NOT IN (5, 10)
                 AND cv22.custom_field_id = 22
-                AND cv22.value = '24_2'
+                AND cv22.value = '{quarter}'
             """
         )
         result = cursor.fetchall()
 
-    elif filter == "quarter_plan":
+    elif filter == "quarter_plan" and quarter:
         cursor.execute(
-            """
+            f"""
             SELECT
                 i.id,
                 cv22.value,
@@ -80,7 +80,7 @@ def get_musthave_crm_task_ids(filter: "FilterType") -> set[int]:
                 AND i.tracker_id != 6
                 AND i.status_id NOT IN (5, 10)
                 AND cv22.custom_field_id = 22
-                AND cv22.value = '24_2'
+                AND cv22.value = '{quarter}'
                 AND cv21.custom_field_id = 21
                 AND cv21.value = '4. План'
             """
@@ -102,6 +102,9 @@ def get_musthave_crm_task_ids(filter: "FilterType") -> set[int]:
             """
         )
         result = cursor.fetchall()
+
+    else:
+        raise Exception("Cant execute sql. Check if/else-blocks")
 
     return set(row[0] for row in result)
 
@@ -239,7 +242,7 @@ def get_incorrect_links(G: "DiGraph") -> list[dict[Literal["incorect", "corect"]
 
         for start, _, end in path3:
             if (start, end) in path2:
-                result.append({"correct": (start, end), "incorect": (start, _, end)})
+                result.append({"incorect": (start, end), "correct": (start, _, end)})
     return result
 
 

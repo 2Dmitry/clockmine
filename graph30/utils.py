@@ -82,7 +82,7 @@ def get_musthave_crm_task_ids(filter: "FilterType", quarter: Optional[str] = Non
                 AND cv22.custom_field_id = 22
                 AND cv22.value = '{quarter}'
                 AND cv21.custom_field_id = 21
-                AND cv21.value = '4. План'
+                AND cv21.value = '3. Важно и не срочно'
             """
         )
         result = cursor.fetchall()
@@ -247,7 +247,7 @@ def get_incorrect_links(G: "DiGraph") -> list[dict[Literal["incorect", "corect"]
 
 
 def get_incorrect_priority(G: "DiGraph", tasks: dict[int, "RedmineTask"]):
-    result = []
+    result = set()
     nodes_without_roots = set(G.nodes) - get_roots(G)
     for node in G.nodes:
         paths = tuple(nx.all_simple_paths(G, source=node, target=nodes_without_roots, cutoff=2))
@@ -261,7 +261,7 @@ def get_incorrect_priority(G: "DiGraph", tasks: dict[int, "RedmineTask"]):
                 post_task = tasks.get(elem)
                 post_code = post_task.code
                 if pre_code < post_code:
-                    result.append([pre_task.id, post_task.id])
+                    result.add((pre_task.id, post_task.id))
                 pre_task = post_task
                 pre_code = post_code
     return result

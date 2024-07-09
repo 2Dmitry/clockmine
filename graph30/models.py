@@ -58,7 +58,25 @@ class RedmineTask:
         return quarter * 100 + group * 10 + priority
 
     @property
-    def color(self) -> str:
+    def node_size(self):
+        # todo fixme некрасиво
+        if self.estimated_hours:
+            if self.estimated_hours > 100:
+                size = self.estimated_hours / 3
+            else:
+                size = self.estimated_hours
+        else:
+            size = 20
+        return size
+
+    @property
+    def node_label(self):
+        return (
+            f"{self.code} | {self.quarter}\n{self.group} | {self.priority}\n{self.id} {self.tracker}\n{self.status}\n{self.responsible_lastname or '---'}",
+        )
+
+    @property
+    def node_color(self) -> str:
         color = ""
         if self.project_id == 69:
             if self.quarter == QUARTER:

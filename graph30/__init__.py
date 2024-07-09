@@ -13,6 +13,7 @@ get_incorrect_links(G)
 
 from typing import TYPE_CHECKING
 import networkx as nx
+from graph30.constants import QUARTER
 from graph30.models import RedmineTask
 from graph30 import utils
 
@@ -20,7 +21,6 @@ if TYPE_CHECKING:
     from graph30.typing import FilterType
 
 FILTER: "FilterType" = "quarter"
-QUARTER = "24_3"
 ADDITIONAL_TASK_IDS: set[int] = set()  # {30827, 31615, 31300}  # set()
 LAYERS: int = 2
 NEED_INCORRECT_LINKS_ANALYZE: bool = True
@@ -36,12 +36,7 @@ print(f"{musthave_task_ids=}")
 task_ids, blocked_links = utils.cascade_tasks_blocks(task_ids=set(musthave_task_ids), layers=LAYERS)
 tasks: dict[int, "RedmineTask"] = utils.get_redmine_tasks(task_ids)
 for task in tasks.values():
-    G.add_node(
-        task.id,
-        size=(task.estimated_hours or 20),
-        label=f"{task.code}\n{task.quarter} | {task.group} | {task.priority}\n{task.id} {task.tracker}\n{task.status}\n{task.responsible_lastname or '---'}",
-        color=task.color,
-    )
+    G.add_node(task.id, size=task.node_size, label=task.node_label, color=task.node_color)
 G.add_edges_from(blocked_links)
 
 if NEED_REMOVE_SOLO_NODES:

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Literal, Optional
+from typing import TYPE_CHECKING, Final, Literal, Optional
 from pyvis.network import Network
 from graph30.constants import OPTIONS
 import networkx as nx
@@ -242,11 +242,12 @@ def get_incorrect_links(G: "DiGraph") -> list[dict[Literal["incorect", "corect"]
 
         for start, _, end in path3:
             if (start, end) in path2:
-                result.append({"incorect": (start, end), "correct": (start, _, end)})
+                result.append({"correct": (start, end), "incorect": (start, _, end)})
     return result
 
 
 def get_incorrect_priority(G: "DiGraph", tasks: dict[int, "RedmineTask"]):
+    STATUSES: Final[tuple[Literal["Выполнена"], Literal["Отменена"]]] = ("Выполнена", "Отменена")
     result = set()
     nodes_without_roots = set(G.nodes) - get_roots(G)
     for node in G.nodes:
@@ -259,8 +260,10 @@ def get_incorrect_priority(G: "DiGraph", tasks: dict[int, "RedmineTask"]):
 
             for elem in path:
                 post_task = tasks.get(elem)
+                if not post_task:
+                    continue
                 post_code = post_task.code
-                if pre_code < post_code:
+                if pre_code < post_code and pre_task and pre_task.status not in STATUSES:
                     result.add((pre_task.id, post_task.id))
                 pre_task = post_task
                 pre_code = post_code

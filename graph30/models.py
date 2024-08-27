@@ -71,9 +71,7 @@ class RedmineTask:
 
     @property
     def node_label(self):
-        return (
-            f"{self.code} | {self.quarter}\n{self.group} | {self.priority}\n{self.id} {self.tracker}\n{self.status}\n{self.responsible_lastname or '---'}",
-        )
+        return f"{self.code} | {self.quarter}\n{self.group} | {self.priority}\n{self.id} {self.tracker}\n{self.status}\n{self.responsible_lastname or '---'}"
 
     @property
     def node_color(self) -> str:

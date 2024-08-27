@@ -3,15 +3,17 @@
 python3 -m ensurepip
 python3 -m pip install --upgrade pip
 pip install -r requirements.txt
+
 python
 import graph30
+
 import networkx as nx
 from graph30.utils import get_incorrect_links, get_roots
 from graph30 import G
 get_incorrect_links(G)
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 import networkx as nx
 from graph30.constants import QUARTER
 from graph30.models import RedmineTask
@@ -22,10 +24,11 @@ if TYPE_CHECKING:
 
 FILTER: "FilterType" = "quarter"
 ADDITIONAL_TASK_IDS: set[int] = set()  # {30827, 31615, 31300}  # set()
-LAYERS: int = 2
+LAYERS: Literal[1, 2, 3, 4, 5] = 1
 NEED_INCORRECT_LINKS_ANALYZE: bool = True
 NEED_INCORRECT_PRIORITY_ANALYZE: bool = True
-NEED_REMOVE_SOLO_NODES = False
+SHOW_SOLO_TASKS: bool = True
+# SHOW_CLOSED_TASKS: bool = False
 G = nx.DiGraph()
 
 musthave_task_ids = utils.get_musthave_crm_task_ids(filter=FILTER, quarter=QUARTER)
@@ -39,7 +42,7 @@ for task in tasks.values():
     G.add_node(task.id, size=task.node_size, label=task.node_label, color=task.node_color)
 G.add_edges_from(blocked_links)
 
-if NEED_REMOVE_SOLO_NODES:
+if not SHOW_SOLO_TASKS:
     print("WARNING! Вы удаляете из графа задачи без каких-либо блокировок -> ")
     print(utils.remove_solo_nodes(G))
 

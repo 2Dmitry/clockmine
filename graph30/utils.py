@@ -11,10 +11,10 @@ connect = psycopg2.connect(DATABASE_URI_REPORTS_REDMINE)
 
 if TYPE_CHECKING:
     from networkx import DiGraph
-    from graph30.typing import FilterType
+    from graph30 import typing
 
 
-def get_musthave_crm_task_ids(filter: "FilterType", quarter: Optional[str] = None) -> set[int]:
+def get_musthave_crm_task_ids(filter: "typing.FilterType", quarter: Optional[str] = None) -> set[int]:
     result = []
     cursor = connect.cursor()
 
@@ -94,11 +94,13 @@ def get_musthave_crm_task_ids(filter: "FilterType", quarter: Optional[str] = Non
                 i.id
             FROM
                 issues i
+                LEFT JOIN custom_values cv25 ON cv25.customized_id = i.id
             WHERE
-                i.project_id in (23, 63, 59, 30, 62, 73, 60, 61)
-                and i.id > 24000
+                i.project_id = 69
                 AND i.tracker_id != 6
                 AND i.status_id NOT IN (5, 10)
+                AND cv25.custom_field_id = 25
+                AND cv25.value = '1'
             """
         )
         result = cursor.fetchall()
@@ -146,7 +148,8 @@ def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
             i.subject,
             cv21.value,
             cv22.value,
-            i.project_id
+            i.project_id,
+            cv25.value
         FROM
             issues i
             JOIN trackers tr ON tr.id = i.tracker_id
@@ -155,6 +158,7 @@ def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
             LEFT JOIN users u ON u.id = i.assigned_to_id
             LEFT JOIN custom_values cv21 on cv21.customized_id = i.id and cv21.custom_field_id = 21
             LEFT JOIN custom_values cv22 on cv22.customized_id = i.id and cv22.custom_field_id = 22
+            LEFT JOIN custom_values cv25 on cv25.customized_id = i.id and cv25.custom_field_id = 25
         WHERE
             i.id IN {str(tuple(task_ids)).replace(",)", ")")}
         """
@@ -162,11 +166,13 @@ def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
 
     result = dict()
     for row in cursor.fetchall():
+        kpi = True if row[11] == "1" else False
         result[row[0]] = RedmineTask(
             id=row[0],
             subject=row[7],
             estimated_hours=row[1],
             responsible_lastname=row[4],
+            kpi=kpi,
             quarter=row[9],
             group=row[8],
             priority_id=row[6],
@@ -212,8 +218,9 @@ def find_roots_and_leaves(G: "DiGraph") -> tuple[set[int], set[int]]:
     return roots, leaves
 
 
-def cascade_tasks_blocks(task_ids: set, layers: int):
+def cascade_tasks_blocks(task_ids: set, layers: "typing.LayersType"):
     step = 0
+    links = []
 
     while step < layers:
         step += 1
@@ -256,7 +263,7 @@ def get_incorrect_priority(G: "DiGraph", tasks: dict[int, "RedmineTask"]):
         for path in paths:
             pre_task = None
             post_task = None
-            pre_code = 999
+            pre_code = 9999
 
             for elem in path:
                 post_task = tasks.get(elem)

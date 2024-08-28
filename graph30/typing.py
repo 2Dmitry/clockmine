@@ -2,3 +2,4 @@ from typing import Literal, TypeAlias
 
 
 FilterType: TypeAlias = Literal["all", "opened", "quarter", "quarter_plan", "custom"]
+LayersType = Literal[1, 2, 3, 4, 5]

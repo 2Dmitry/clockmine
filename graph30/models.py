@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Literal
 
 from graph30.constants import COLORS, GROUP_MAP, PRIORITY, QUARTER_MAP
 from graph30 import QUARTER
@@ -37,6 +38,7 @@ class RedmineTask:
     subject: str
     estimated_hours: float
     responsible_lastname: str
+    kpi: bool
     quarter: str
     group: str
     priority_id: int
@@ -51,11 +53,12 @@ class RedmineTask:
 
     @property
     def code(self) -> int:
+        kpi = self.kpi
         quarter = RedmineTaskUtils.get_quarter_int(self.quarter)
         group = RedmineTaskUtils.get_group_int(self.group)
         priority = self.priority_id
 
-        return quarter * 100 + group * 10 + priority
+        return kpi * 1000 + quarter * 100 + group * 10 + priority
 
     @property
     def node_size(self):
@@ -70,8 +73,12 @@ class RedmineTask:
         return size
 
     @property
+    def asap(self) -> Literal["ASAP"] | Literal[""]:
+        return "ASAP" if self.kpi else ""
+
+    @property
     def node_label(self):
-        return f"{self.code} | {self.quarter}\n{self.group} | {self.priority}\n{self.id} {self.tracker}\n{self.status}\n{self.responsible_lastname or '---'}"
+        return f"{self.code} | {self.quarter}\n{self.asap} {self.group} {self.priority}\n{self.id} {self.tracker}\n{self.status}\n{self.responsible_lastname or '---'}"
 
     @property
     def node_color(self) -> str:

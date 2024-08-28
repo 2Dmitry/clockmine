@@ -13,22 +13,22 @@ from graph30 import G
 get_incorrect_links(G)
 """
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 import networkx as nx
 from graph30.constants import QUARTER
 from graph30.models import RedmineTask
 from graph30 import utils
 
 if TYPE_CHECKING:
-    from graph30.typing import FilterType
+    from graph30 import typing
 
-FILTER: "FilterType" = "quarter"
-ADDITIONAL_TASK_IDS: set[int] = set()  # {30827, 31615, 31300}  # set()
-LAYERS: Literal[1, 2, 3, 4, 5] = 1
+FILTER: "typing.FilterType" = "custom"
+ADDITIONAL_TASK_IDS: set[int] = {27166, 28657, 28463, 23299}  # {30827, 31615, 31300}  # set()
+LAYERS: "typing.LayersType" = 1
 NEED_INCORRECT_LINKS_ANALYZE: bool = True
 NEED_INCORRECT_PRIORITY_ANALYZE: bool = True
 SHOW_SOLO_TASKS: bool = True
-# SHOW_CLOSED_TASKS: bool = False
+
 G = nx.DiGraph()
 
 musthave_task_ids = utils.get_musthave_crm_task_ids(filter=FILTER, quarter=QUARTER)

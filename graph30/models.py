@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Literal
+from typing import Literal, Optional
 
 from graph30.constants import COLORS, GROUP_MAP, PRIORITY, QUARTER_MAP
 from graph30 import QUARTER
@@ -37,7 +37,7 @@ class RedmineTask:
     id: int
     subject: str
     estimated_hours: float
-    responsible_lastname: str
+    author_lastname: str
     kpi: bool
     quarter: str
     group: str
@@ -46,6 +46,16 @@ class RedmineTask:
     status: str
     d_create: datetime
     project_id: int
+    responsible: str
+    executor: str
+
+    @property
+    def responsible_display(self) -> str:
+        return self.responsible.split(" ")[0] if self.responsible else "---"
+
+    @property
+    def executor_display(self) -> str:
+        return self.executor.split(" ")[0] if self.executor else "---"
 
     @property
     def priority(self) -> str:
@@ -76,12 +86,19 @@ class RedmineTask:
     def asap(self) -> Literal["ASAP"] | Literal[""]:
         return "ASAP" if self.kpi else ""
 
-    @property
-    def node_label(self):
-        return f"{self.code} | {self.quarter}\n{self.asap} {self.group} {self.priority}\n{self.id} {self.tracker}\n{self.status}\n{self.responsible_lastname or '---'}"
+    # @property
+    # def node_label(self):
+    #     return f"{self.code} | {self.quarter}\n\
+    #             {self.asap} {self.group} {self.priority}\n\
+    #             {self.id} {self.tracker}\n{self.status}\n\
+    #             {self.author_lastname or '---'}"
 
     @property
-    def node_color(self) -> str:
+    def node_label(self):
+        return f"{self.asap}.{self.code}\n{self.id} {self.status}\n{self.responsible_display} + {self.executor_display}"
+
+    @property
+    def node_color(self) -> Optional[str]:
         color = ""
         if self.project_id == 69:
             if self.quarter == QUARTER:
@@ -90,4 +107,8 @@ class RedmineTask:
                 color = "gray"
         else:
             color = COLORS.get(self.status, "")
+
+        if self.code < 1511 and self.status not in ("Отменена", "Выполнена", "Ожидает релиз, проверена"):
+            color = None
+
         return color

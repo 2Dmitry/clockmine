@@ -149,7 +149,9 @@ def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
             cv21.value,
             cv22.value,
             i.project_id,
-            cv25.value
+            cv25.value,
+            cv18.value,  --ответственный
+            cv15.value  --исполнитель
         FROM
             issues i
             JOIN trackers tr ON tr.id = i.tracker_id
@@ -159,6 +161,8 @@ def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
             LEFT JOIN custom_values cv21 on cv21.customized_id = i.id and cv21.custom_field_id = 21
             LEFT JOIN custom_values cv22 on cv22.customized_id = i.id and cv22.custom_field_id = 22
             LEFT JOIN custom_values cv25 on cv25.customized_id = i.id and cv25.custom_field_id = 25
+            LEFT JOIN custom_values cv18 on cv18.customized_id = i.id and cv18.custom_field_id = 18
+            LEFT JOIN custom_values cv15 on cv15.customized_id = i.id and cv15.custom_field_id = 15
         WHERE
             i.id IN {str(tuple(task_ids)).replace(",)", ")")}
         """
@@ -171,7 +175,7 @@ def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
             id=row[0],
             subject=row[7],
             estimated_hours=row[1],
-            responsible_lastname=row[4],
+            author_lastname=row[4],
             kpi=kpi,
             quarter=row[9],
             group=row[8],
@@ -180,6 +184,8 @@ def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
             status=row[3],
             d_create=row[5],
             project_id=row[10],
+            responsible=row[12],
+            executor=row[13],
         )
 
     return result

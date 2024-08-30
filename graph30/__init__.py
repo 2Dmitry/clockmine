@@ -40,10 +40,9 @@ print(f"{musthave_task_ids=}")
 task_ids, blocked_links = utils.cascade_tasks_blocks(task_ids=set(musthave_task_ids), layers=LAYERS)
 tasks: dict[int, "RedmineTask"] = utils.get_redmine_tasks(task_ids)
 for task in tasks.values():
-    size = 50
-    if ALLOW_COST_FOR_NODE_SIZE:
-        size = task.node_size
-    G.add_node(task.id, size=size, label=task.node_label, color=task.node_color)
+    G.add_node(
+        task.id, size=task.node_size if ALLOW_COST_FOR_NODE_SIZE else 50, label=task.node_label, color=task.node_color
+    )
 G.add_edges_from(blocked_links)
 
 if not SHOW_SOLO_TASKS:

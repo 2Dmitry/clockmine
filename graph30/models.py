@@ -83,19 +83,12 @@ class RedmineTask:
         return size
 
     @property
-    def asap(self) -> Literal["ASAP"] | Literal[""]:
-        return "ASAP" if self.kpi else ""
-
-    # @property
-    # def node_label(self):
-    #     return f"{self.code} | {self.quarter}\n\
-    #             {self.asap} {self.group} {self.priority}\n\
-    #             {self.id} {self.tracker}\n{self.status}\n\
-    #             {self.author_lastname or '---'}"
+    def asap(self) -> Literal["ASAP"] | Literal["default"]:
+        return "ASAP" if self.kpi else "default"
 
     @property
     def node_label(self):
-        return f"{self.asap}.{self.code}\n{self.id} {self.status}\n{self.responsible_display} + {self.executor_display}"
+        return f"{self.asap}.{self.code}\n{self.id} {self.status}\n{self.responsible_display} - {self.executor_display}"
 
     @property
     def node_color(self) -> Optional[str]:
@@ -104,11 +97,11 @@ class RedmineTask:
             if self.quarter == QUARTER:
                 color = COLORS.get(self.status, "")
             else:
-                color = "gray"
+                color = COLORS.get("Выполнена", "")
         else:
             color = COLORS.get(self.status, "")
 
         if self.code < 1511 and self.status not in ("Отменена", "Выполнена", "Ожидает релиз, проверена"):
-            color = None
+            color = COLORS.get("Выполнена", "")
 
         return color

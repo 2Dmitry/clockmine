@@ -18,6 +18,7 @@ def get_musthave_crm_task_ids(filter: "typing.FilterType", quarter: Optional[str
     result = []
     cursor = connect.cursor()
 
+    # TODO сделай переменную query и в нее положи строку а в ретерне execute str просто делай
     if filter == "all":
         cursor.execute(
             """
@@ -82,7 +83,7 @@ def get_musthave_crm_task_ids(filter: "typing.FilterType", quarter: Optional[str
                 AND cv22.custom_field_id = 22
                 AND cv22.value = '{quarter}'
                 AND cv21.custom_field_id = 21
-                AND cv21.value = '3. Важно и не срочно'
+                AND cv21.value = '1. Важно и срочно'
             """
         )
         result = cursor.fetchall()

@@ -28,7 +28,7 @@ LAYERS: "typing.LayersType" = 1
 NEED_INCORRECT_LINKS_ANALYZE: bool = True
 NEED_INCORRECT_PRIORITY_ANALYZE: bool = True
 SHOW_SOLO_TASKS: bool = True
-ALLOW_COST_FOR_NODE_SIZE: bool = False
+ALLOW_COST_FOR_NODE_SIZE: bool = True
 
 G = nx.DiGraph()
 

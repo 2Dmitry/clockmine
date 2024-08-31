@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Final, Literal, Optional
 from pyvis.network import Network
-from graph30.constants import OPTIONS
 import networkx as nx
 
 import psycopg2
@@ -186,13 +185,22 @@ def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
 
 
 def render_graph(G: "DiGraph"):
-    net = Network()
-    net.from_nx(G)
-    # net.show_buttons(filter_=["edges", "layout", "physics"])
-    net.set_options(OPTIONS)
+    net = Network(height="600px", layout=True, directed=True)
 
-    net.show("graph30.html", notebook=False)  # save visualization in 'graph.html'
-    return
+    net.options.layout.hierarchical.sortMethod = "directed"
+    net.options.layout.hierarchical.shakeTowards = "leaves"
+    net.options.layout.hierarchical.levelSeparation = 200
+    net.options.layout.hierarchical.nodeSpacing = 1
+    net.options.layout.hierarchical.treeSpacing = 50
+
+    net.options.physics.use_hrepulsion(
+        {"node_distance": 200, "central_gravity": 0, "spring_length": 100, "spring_strength": 0.25, "damping": 0.09}
+    )
+    net.options.physics.hierarchicalRepulsion.avoidOverlap = 1
+
+    net.from_nx(G)
+    net.show_buttons(filter_=["physics"])
+    net.show("graph30.html", notebook=False)  # save visualization in file
 
 
 def find_roots(G: "DiGraph") -> set[int]:

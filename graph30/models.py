@@ -87,7 +87,7 @@ class RedmineTask:
             if self.quarter == QUARTER:
                 color = COLORS.get(self.status, "")
             else:
-                color = "gray"
+                color = COLORS.get("Выполнена", "")
         else:
             color = COLORS.get(self.status, "")
         return color

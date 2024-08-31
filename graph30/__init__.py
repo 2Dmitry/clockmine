@@ -40,7 +40,9 @@ task_ids, blocked_links = utils.cascade_tasks_blocks(task_ids=set(musthave_task_
 tasks: dict[int, "RedmineTask"] = utils.get_redmine_tasks(task_ids)
 for task in tasks.values():
     G.add_node(task.id, size=task.node_size, label=task.node_label, color=task.node_color)
-G.add_edges_from(blocked_links)
+
+for from_, to_ in blocked_links:
+    G.add_edge(from_, to_)
 
 if not SHOW_SOLO_TASKS:
     print("WARNING! Вы удаляете из графа задачи без каких-либо блокировок -> ")

@@ -57,7 +57,6 @@ def get_musthave_crm_task_ids(filter: "typing.FilterType", quarter: Optional[str
             WHERE
                 i.project_id = 69
                 AND i.tracker_id != 6
-                AND i.status_id NOT IN (5, 10)
                 AND cv22.custom_field_id = 22
                 AND cv22.value = '{quarter}'
             """
@@ -78,7 +77,6 @@ def get_musthave_crm_task_ids(filter: "typing.FilterType", quarter: Optional[str
             WHERE
                 i.project_id = 69
                 AND i.tracker_id != 6
-                AND i.status_id NOT IN (5, 10)
                 AND cv22.custom_field_id = 22
                 AND cv22.value = '{quarter}'
                 AND cv21.custom_field_id = 21
@@ -192,18 +190,18 @@ def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
 
 
 def render_graph(G: "DiGraph"):
-    net = Network(height="600px", layout=True, directed=True)
+    net = Network(height="1000px", bgcolor="#fdf2e9", layout=True, directed=True, select_menu=True, filter_menu=True)
 
     net.options.layout.hierarchical.sortMethod = "directed"
     net.options.layout.hierarchical.shakeTowards = "leaves"
-    net.options.layout.hierarchical.levelSeparation = 200
+    net.options.layout.hierarchical.levelSeparation = 250
     net.options.layout.hierarchical.nodeSpacing = 1
-    net.options.layout.hierarchical.treeSpacing = 50
+    net.options.layout.hierarchical.treeSpacing = 200
 
     net.options.physics.use_hrepulsion(
-        {"node_distance": 200, "central_gravity": 0, "spring_length": 100, "spring_strength": 0.25, "damping": 0.09}
+        {"node_distance": 200, "central_gravity": 0, "spring_length": 200, "spring_strength": 0.25, "damping": 0.09}
     )
-    net.options.physics.hierarchicalRepulsion.avoidOverlap = 1
+    net.options.physics.hierarchicalRepulsion.avoidOverlap = 0.01
 
     net.from_nx(G)
     net.show_buttons(filter_=["physics"])

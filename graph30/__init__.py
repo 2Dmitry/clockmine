@@ -18,19 +18,21 @@ import networkx as nx
 from graph30.constants import QUARTER
 from graph30.models import RedmineTask
 from graph30 import utils
+from typing import Final
 
 if TYPE_CHECKING:
     from graph30 import typing
+    from networkx import DiGraph
 
 FILTER: "typing.FilterType" = "custom"
-ADDITIONAL_TASK_IDS: set[int] = {27166, 28657, 28463, 23299}  # {30827, 31615, 31300}  # set()
+ADDITIONAL_TASK_IDS: Final[set[int]] = {27166, 28657, 28463, 23299}  # {27166, 28657, 28463, 23299}  # set()
 LAYERS: "typing.LayersType" = 1
-NEED_INCORRECT_LINKS_ANALYZE: bool = True
-NEED_INCORRECT_PRIORITY_ANALYZE: bool = True
-SHOW_SOLO_TASKS: bool = True
-ALLOW_COST_FOR_NODE_SIZE: bool = True
+NEED_INCORRECT_LINKS_ANALYZE: Final[bool] = True
+NEED_INCORRECT_PRIORITY_ANALYZE: Final[bool] = True
+SHOW_SOLO_TASKS: Final[bool] = True
+ALLOW_COST_FOR_NODE_SIZE: Final[bool] = True
 
-G = nx.DiGraph()
+G: Final["DiGraph"] = nx.DiGraph()
 
 musthave_task_ids = utils.get_musthave_crm_task_ids(filter=FILTER, quarter=QUARTER)
 if ADDITIONAL_TASK_IDS:
@@ -41,22 +43,23 @@ task_ids, blocked_links = utils.cascade_tasks_blocks(task_ids=set(musthave_task_
 tasks: dict[int, "RedmineTask"] = utils.get_redmine_tasks(task_ids)
 for task in tasks.values():
     G.add_node(
-        task.id, size=task.node_size if ALLOW_COST_FOR_NODE_SIZE else 50, label=task.node_label, color=task.node_color
+        task.id,
+        size=task.node_size if ALLOW_COST_FOR_NODE_SIZE else 50,
+        label=task.node_label,
+        color=task.node_color,
+        borderWidth=1,
     )
 
 for from_, to_ in blocked_links:
     G.add_edge(from_, to_)
 
 if not SHOW_SOLO_TASKS:
-    print("WARNING! Вы удаляете из графа задачи без каких-либо блокировок -> ")
-    print(utils.remove_solo_nodes(G))
+    print(f"WARNING! Вы удаляете из графа задачи без каких-либо блокировок -> {utils.remove_solo_nodes(G)}")
 
 if NEED_INCORRECT_LINKS_ANALYZE:
-    print("INFO! Вы запросили анализ избыточных блокировок -> ")
-    print(utils.get_incorrect_links(G))
+    print(f"INFO! Вы запросили анализ избыточных блокировок -> {utils.get_incorrect_links(G)}")
 
 if NEED_INCORRECT_PRIORITY_ANALYZE:
-    print("INFO! Вы запросили анализ неправильных приоритетов -> ")
-    print(utils.get_incorrect_priority(G, tasks))
+    print(f"INFO! Вы запросили анализ неправильных приоритетов -> {utils.get_incorrect_priority(G, tasks)}")
 
 utils.render_graph(G)

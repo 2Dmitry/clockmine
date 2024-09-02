@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Literal, Optional
 
 from graph30.constants import COLORS, GROUP_MAP, PRIORITY, QUARTER_MAP
-from graph30 import QUARTER
 
 
 class RedmineTaskUtils:
@@ -58,7 +57,7 @@ class RedmineTask:
         return self.executor.split(" ")[0] if self.executor else "---"
 
     @property
-    def priority(self) -> str:
+    def priority_display(self) -> str:
         return RedmineTaskUtils.translate_priority_id(self.priority_id)
 
     @property
@@ -87,21 +86,16 @@ class RedmineTask:
         return "ASAP" if self.kpi else "default"
 
     @property
-    def node_label(self):
-        return f"{self.asap}.{self.code}\n{self.id} {self.status}\n{self.responsible_display} - {self.executor_display}"
+    def node_label(self) -> str:
+        return f"{self.asap} {self.code}\n{self.id} {self.status}\n{self.responsible_display} - {self.executor_display}"
 
     @property
     def node_color(self) -> Optional[str]:
         color = ""
         if self.project_id == 69:
-            if self.quarter == QUARTER:
-                color = COLORS.get(self.status, "")
-            else:
-                color = COLORS.get("Выполнена", "")
-        else:
             color = COLORS.get(self.status, "")
 
-        if self.code < 1511 and self.status not in ("Отменена", "Выполнена", "Ожидает релиз, проверена"):
+        if (self.quarter != "24_3" or not self.kpi) and self.status != "Ожидает релиз, проверена":
             color = COLORS.get("Выполнена", "")
 
         return color

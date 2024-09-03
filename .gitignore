@@ -1,5 +1,6 @@
 __pycache__
 .venv
-/.env
+.env
 .devcontainer
 graph30.html
+lib

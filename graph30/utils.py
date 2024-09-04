@@ -147,9 +147,10 @@ def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
             cv21.value,
             cv22.value,
             i.project_id,
-            cv25.value,
+            cv25.value,  --ППР/KPI
             cv18.value,  --ответственный
-            cv15.value  --исполнитель
+            cv15.value,  --исполнитель
+            i.due_date
         FROM
             issues i
             JOIN trackers tr ON tr.id = i.tracker_id
@@ -158,9 +159,9 @@ def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
             LEFT JOIN users u ON u.id = i.assigned_to_id
             LEFT JOIN custom_values cv21 on cv21.customized_id = i.id and cv21.custom_field_id = 21
             LEFT JOIN custom_values cv22 on cv22.customized_id = i.id and cv22.custom_field_id = 22
-            LEFT JOIN custom_values cv25 on cv25.customized_id = i.id and cv25.custom_field_id = 25
-            LEFT JOIN custom_values cv18 on cv18.customized_id = i.id and cv18.custom_field_id = 18
-            LEFT JOIN custom_values cv15 on cv15.customized_id = i.id and cv15.custom_field_id = 15
+            LEFT JOIN custom_values cv25 on cv25.customized_id = i.id and cv25.custom_field_id = 25  --ППР/KPI
+            LEFT JOIN custom_values cv18 on cv18.customized_id = i.id and cv18.custom_field_id = 18  --ответственный
+            LEFT JOIN custom_values cv15 on cv15.customized_id = i.id and cv15.custom_field_id = 15  --исполнитель
         WHERE
             i.id IN {str(tuple(task_ids)).replace(",)", ")")}
         """
@@ -184,6 +185,7 @@ def get_redmine_tasks(task_ids: set) -> dict[int, "RedmineTask"]:
             project_id=row[10],
             responsible=row[12],
             executor=row[13],
+            due_date=row[14],
         )
 
     return result

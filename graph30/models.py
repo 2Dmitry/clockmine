@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, date
 from typing import Literal, Optional
 
 from graph30.constants import COLORS, GROUP_MAP, PRIORITY, QUARTER_MAP
@@ -47,6 +47,7 @@ class RedmineTask:
     project_id: int
     responsible: str
     executor: str
+    due_date: date
 
     @property
     def responsible_display(self) -> str:
@@ -82,15 +83,26 @@ class RedmineTask:
         return size
 
     @property
-    def asap(self) -> Literal["ASAP"] | Literal["default"]:
-        return "ASAP" if self.kpi else "default"
+    def due_date_display(self) -> str:
+        return self.due_date.strftime("%d.%m.%Y") if self.due_date else "---"
 
     @property
-    def node_label(self) -> str:
-        return f"{self.asap} {self.code}\n{self.id} {self.status}\n{self.responsible_display} - {self.executor_display}"
+    def asap_display(self) -> Literal["ASAP"] | Literal["---"]:
+        return "ASAP" if self.kpi else "---"
 
     @property
-    def node_color(self) -> Optional[str]:
+    def sign(self) -> str:
+        lst = [
+            f"{self.due_date_display}",
+            f"№ {self.id}",
+            f"{self.asap_display} ({self.code})",
+            f"{self.status}",
+            f"{self.responsible_display} - {self.executor_display}",
+        ]
+        return "\n".join(lst)
+
+    @property
+    def color_display(self) -> Optional[str]:
         color = ""
         if self.project_id == 69:
             color = COLORS.get(self.status, "")

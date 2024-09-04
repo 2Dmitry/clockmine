@@ -13,7 +13,7 @@ from graph30 import G
 get_incorrect_links(G)
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 import networkx as nx
 from graph30.constants import QUARTER
 from graph30.models import RedmineTask
@@ -31,6 +31,7 @@ NEED_INCORRECT_LINKS_ANALYZE: Final[bool] = True
 NEED_INCORRECT_PRIORITY_ANALYZE: Final[bool] = True
 SHOW_SOLO_TASKS: Final[bool] = True
 ALLOW_COST_FOR_NODE_SIZE: Final[bool] = True
+MODE: Final[Literal["release", "default", "all"]] = "all"
 
 G: Final["DiGraph"] = nx.DiGraph()
 
@@ -45,13 +46,48 @@ for task in tasks.values():
     G.add_node(
         task.id,
         size=task.node_size if ALLOW_COST_FOR_NODE_SIZE else 50,
-        label=task.node_label,
-        color=task.node_color,
+        label=task.sign,
+        color=task.color_display,
         borderWidth=1,
     )
 
-for from_, to_ in blocked_links:
-    G.add_edge(from_, to_)
+
+def mode_default(G, blocked_links):
+    for from_, to_ in blocked_links:
+        G.add_edge(from_, to_)
+
+
+def mode_release(G, tasks):
+    release_nodes = set()
+    for task in tasks.values():
+        if task.due_date:
+            release_nodes.add(task.due_date)
+    release_nodes = list(release_nodes)
+    release_nodes.sort()
+    for rel_node in release_nodes:
+        print(rel_node)
+        G.add_node(rel_node.strftime("%d.%m.%Y"))
+    release_links = [(node, release_nodes[i + 1]) for i, node in enumerate(release_nodes[:-1], 0)]
+    print(release_links)
+    for from_, to_ in release_links:
+        G.add_edge(from_.strftime("%d.%m.%Y"), to_.strftime("%d.%m.%Y"))
+
+    for task in tasks.values():
+        if task.due_date:
+            G.add_edge(task.id, task.due_date.strftime("%d.%m.%Y"))
+
+
+if MODE == "release":
+    # RELEASE plan
+    mode_release(G, tasks)
+
+elif MODE == "default":
+    mode_default(G, blocked_links)
+
+elif MODE == "all":
+    mode_release(G, tasks)
+    mode_default(G, blocked_links)
+
 
 if not SHOW_SOLO_TASKS:
     print(f"WARNING! Вы удаляете из графа задачи без каких-либо блокировок -> {utils.remove_solo_nodes(G)}")

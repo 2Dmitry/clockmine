@@ -75,7 +75,7 @@ class RedmineTask:
         # todo fixme некрасиво
         if self.estimated_hours:
             if self.estimated_hours > 100:
-                size = self.estimated_hours / 3
+                size = 70
             else:
                 size = self.estimated_hours
         else:

@@ -27,11 +27,19 @@ if TYPE_CHECKING:
 FILTER: "typing.FilterType" = "custom"
 ADDITIONAL_TASK_IDS: Final[set[int]] = {27166, 28657, 28463, 23299}  # {27166, 28657, 28463, 23299}  # set()
 LAYERS: "typing.LayersType" = 1
-NEED_INCORRECT_LINKS_ANALYZE: Final[bool] = True
+NEED_INCORRECT_LINKS_ANALYZE: bool = True
 NEED_INCORRECT_PRIORITY_ANALYZE: Final[bool] = True
 SHOW_SOLO_TASKS: Final[bool] = True
 ALLOW_COST_FOR_NODE_SIZE: Final[bool] = True
 MODE: Final[Literal["release", "default", "all"]] = "all"
+
+if MODE in ("release", "all") and NEED_INCORRECT_LINKS_ANALYZE:
+    print(
+        "INFO! Вы запросили анализ избыточных блокировок,\
+        но эта функция работает некорректно с выбранным Модом отображения.\n\
+        Анализ избыточных блокировок отключен. Чтобы его включить поставьте MODE='default'."
+    )
+    NEED_INCORRECT_LINKS_ANALYZE = False
 
 G: Final["DiGraph"] = nx.DiGraph()
 

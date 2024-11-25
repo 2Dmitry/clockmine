@@ -24,14 +24,14 @@ if TYPE_CHECKING:
     from graph30 import typing
     from networkx import DiGraph
 
-FILTER: "typing.FilterType" = "custom"
-ADDITIONAL_TASK_IDS: Final[set[int]] = {27166, 28657, 28463, 23299}  # {27166, 28657, 28463, 23299}  # set()
+FILTER: "typing.FilterType" = "quarter_plan"
+ADDITIONAL_TASK_IDS: Final[set[int]] = set()
 LAYERS: "typing.LayersType" = 1
 NEED_INCORRECT_LINKS_ANALYZE: bool = True
 NEED_INCORRECT_PRIORITY_ANALYZE: Final[bool] = True
 SHOW_SOLO_TASKS: Final[bool] = True
 ALLOW_COST_FOR_NODE_SIZE: Final[bool] = True
-MODE: Final[Literal["release", "default", "all"]] = "all"
+MODE: Final[Literal["release", "default", "all"]] = "default"
 
 if MODE in ("release", "all") and NEED_INCORRECT_LINKS_ANALYZE:
     print(
@@ -50,7 +50,14 @@ print(f"{musthave_task_ids=}")
 
 task_ids, blocked_links = utils.cascade_tasks_blocks(task_ids=set(musthave_task_ids), layers=LAYERS)
 tasks: dict[int, "RedmineTask"] = utils.get_redmine_tasks(task_ids)
+_tasks = set()
 for task in tasks.values():
+    if (
+        task.group in ("3. Не важно и срочно", "4. Не важно и не срочно")
+        or task.quarter != "24_4"
+        or task.tracker in ("Поддержка (прод)", "Поддержка (не прод)", "Консультация (поддержка)", "Консультация (разработка)")
+    ):
+        continue
     G.add_node(
         task.id,
         size=task.node_size if ALLOW_COST_FOR_NODE_SIZE else 50,
@@ -58,11 +65,13 @@ for task in tasks.values():
         color=task.color_display,
         borderWidth=1,
     )
+    _tasks.add(task.id)
 
 
 def mode_default(G, blocked_links):
     for from_, to_ in blocked_links:
-        G.add_edge(from_, to_)
+        if from_ in _tasks and to_ in _tasks:
+            G.add_edge(from_, to_)
 
 
 def mode_release(G, tasks):

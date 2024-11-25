@@ -55,7 +55,7 @@ class RedmineTask:
 
     @property
     def executor_display(self) -> str:
-        return self.executor.split(" ")[0] if self.executor else "---"
+        return self.executor  # .split(" ")[0] if self.executor else "---"
 
     @property
     def priority_display(self) -> str:
@@ -107,7 +107,7 @@ class RedmineTask:
         if self.project_id == 69:
             color = COLORS.get(self.status, "")
 
-        if (self.quarter != "24_3" or not self.kpi) and self.status != "Ожидает релиз, проверена":
-            color = COLORS.get("Выполнена", "")
+        # if (self.quarter != QUARTER or not self.kpi) and self.status != "Ожидает релиз, проверена":
+        #     color = COLORS.get("Выполнена", "")
 
         return color

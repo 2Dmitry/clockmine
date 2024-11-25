@@ -63,14 +63,18 @@ class TimeEntry:
 
     @cached_property
     def has_access_to_issue(self) -> bool:
-        try:
-            redmine.issue.get(self.issue_id)
-            has_access = True
-        except Exception:
-            print(
-                f"ERROR! У вас нет доступа в Redmine к задаче #{self.issue_id or '<None>'} ({self.description} - {self.hours})\n{REDMINE_URL + 'issues/' + self.issue_id}.\n"
-            )
+        if not self.issue_id:
+            print(f"ERROR! У вас не указан ID Redmine задачи в трудочасах: '{self.description} - {self.hours}'")
             has_access = False
+        else:
+            try:
+                redmine.issue.get(self.issue_id)
+                has_access = True
+            except Exception:
+                print(
+                    f"ERROR! У вас нет доступа в Redmine к задаче #{self.issue_id or '<None>'} ({self.description} - {self.hours})\n{REDMINE_URL + 'issues/' + self.issue_id}.\n"
+                )
+                has_access = False
         return has_access
 
     @property
